@@ -38,6 +38,9 @@ local defaults = {
     spinner_opacity			= 90,
     spinner_dim				= true,
     spinner_dim_amount		= 50,
+    box_flash_enable		= true,
+    box_flash_strength		= 90,
+    box_flash_speed			= 75,
 }
 
 local def_map = {
@@ -78,6 +81,9 @@ local def_map = {
     spinner_opacity			= "spinner",
     spinner_dim				= "spinner",
     spinner_dim_amount		= "spinner",
+    box_flash_enable		= "spinner",
+    box_flash_strength		= "spinner",
+    box_flash_speed			= "spinner",
 }
 
 local colors = {--alpha value will be reset to match slider
@@ -150,6 +156,9 @@ function on_mcm_load()
             {id = "spinner_opacity", type = "track", val = 2, min=10,max=100,step=5, def = 90},
             {id = "spinner_dim", type = "check", val = 1, def=true},
             {id = "spinner_dim_amount", type = "track", val = 2, min=0,max=90,step=5, def = 25},
+            {id = "box_flash_enable", type = "check", val = 1, def=true},
+            {id = "box_flash_strength", type = "track", val = 2, min=10,max=90,step=5, def = 90},
+            {id = "box_flash_speed", type = "track", val = 2, min=25,max=200,step=5, def = 75},
         }},
         }
     }

@@ -98,10 +98,94 @@ end
 local WHITE = GetARGB(255, 255, 255, 255)
 local watched_bags = { actor_bag = true, actor_trade_bag = true }
 
+-- source ammo box flash
+local flash_bags = { "actor_bag", "actor_trade_bag", "npc_bag", "npc_trade_bag" }
+local flash_bag_set = { actor_bag = true, actor_trade_bag = true, npc_bag = true, npc_trade_bag = true }
+
+-- {cc_id, sec} of the box cell we last tinted, so it can be restored to normal
+local flash_prev = nil
+
+-- reset pulse phase on each load so the fade always starts from full opacity
+local flash_start = 0
+
+-- a cell icon sits on top of a near-opaque dark shadow silhouette
+-- (clr_list["shadow"] = GetARGB(200,20,20,20))
+local SHADOW_NORMAL = GetARGB(200, 20, 20, 20)
+
+-- oscillating icon alpha for the fade in/out pulse
+local function flash_alpha()
+    local strength = tonumber(cfg("box_flash_strength")) or 90
+    strength = math.max(0, math.min(90, strength))
+    local speed = tonumber(cfg("box_flash_speed")) or 75
+    local hz = speed / 100
+    -- cosine of time since load start: s = 1 (full) at t=0, then dips and returns.
+    -- 1 Hz at 100% speed
+    local s = 0.5 + 0.5 * math.cos((time_global() - flash_start) * 0.001 * hz * 2 * math.pi)
+    local lo = math.floor(255 * (1 - strength / 100))
+    return math.floor(lo + (255 - lo) * s)
+end
+
+local function apply_flash(ci)
+    local a = flash_alpha()
+    ci.ico:SetTextureColor(GetARGB(a, 255, 255, 255))
+    -- fade the shadow in step so the icon goes translucent, not black
+    if ci.shadow then
+        ci.shadow:SetTextureColor(GetARGB(math.floor(200 * a / 255), 20, 20, 20))
+    end
+end
+
+local function clear_flash(ci)
+    ci.ico:SetTextureColor(WHITE)
+    if ci.shadow then ci.shadow:SetTextureColor(SHADOW_NORMAL) end
+end
+
+local function actor_menu_cc()
+    local m = GetActorMenu()
+    if m and m.CC then return m end
+    return nil
+end
+
+local function restore_flash()
+    if not flash_prev then return end
+    local m = actor_menu_cc()
+    if m then
+        local cc = m.CC[flash_prev.cc_id]
+        local ci = cc and cc:GetCell_SEC(flash_prev.sec)
+        if ci and ci.ico then clear_flash(ci) end
+    end
+    flash_prev = nil
+end
+
+local function flash_tick()
+    if not next(active) then restore_flash() return end
+    if cfg("box_flash_enable") == false then restore_flash() return end
+    local sec = magazines and magazines.get_loading_box_section and magazines.get_loading_box_section()
+    if not sec then restore_flash() return end
+    local m = actor_menu_cc()
+    if not m then return end
+
+    local ci, cc_id
+    for i = 1, #flash_bags do
+        local cc = m.CC[flash_bags[i]]
+        local cell = cc and cc:GetCell_SEC(sec)
+        if cell and cell.ico then ci, cc_id = cell, flash_bags[i] break end
+    end
+    if not ci then restore_flash() return end
+
+    -- box jumped to another stack or container: clear the old tint first
+    if flash_prev and (flash_prev.sec ~= sec or flash_prev.cc_id ~= cc_id) then
+        restore_flash()
+    end
+    apply_flash(ci)
+    flash_prev = { cc_id = cc_id, sec = sec }
+end
+
 -- public API
 function begin(id)
     if not id then return end
-    if cfg("spinner_enable") == false then return end
+    -- active also gates the source-box flash, so keep it populated if either effect is on
+    if cfg("spinner_enable") == false and cfg("box_flash_enable") == false then return end
+    if not next(active) then flash_start = time_global() end
     active[id] = true
 end
 
@@ -111,6 +195,17 @@ end
 
 function clear_all()
     if next(active) then active = {} end
+end
+
+-- Reapply the box fade to one container right after its cells were rebuilt
+local function reapply_box_flash(cc)
+    if not (cc and cc.ID and flash_bag_set[cc.ID]) then return end
+    if not next(active) then return end
+    if cfg("box_flash_enable") == false then return end
+    local sec = magazines and magazines.get_loading_box_section and magazines.get_loading_box_section()
+    if not sec then return end
+    local ci = cc:GetCell_SEC(sec)
+    if ci and ci.ico then apply_flash(ci) end
 end
 
 
@@ -146,7 +241,11 @@ function utils_ui.UICellContainer:Update(item_info, no_info, hide)
         end
         self.__mag_spin_dirty = still
     end
-    return base_Update(self, item_info, no_info, hide)
+    local result = base_Update(self, item_info, no_info, hide)
+    -- after the rebuild repaints the cell, restore the current fade so the box
+    -- never renders at full opacity on a refresh frame
+    reapply_box_flash(self)
+    return result
 end
 
 -- @NOTE: maybe this not needed, idk
@@ -189,4 +288,5 @@ end
 function on_game_start()
     RegisterScriptCallback("actor_on_first_update", init_warm)
     RegisterScriptCallback("on_option_change", apply_warm_texture)
+    RegisterScriptCallback("actor_on_update", flash_tick)
 end

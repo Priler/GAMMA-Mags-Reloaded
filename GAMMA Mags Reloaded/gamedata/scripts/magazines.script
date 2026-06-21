@@ -71,6 +71,8 @@ local load_timeout = {}
 
 -- due to changing how mag loading works (1 big event vs. several events) we need this here to persist which box we are taking ammo from
 local ext_ammo_box = nil
+-- cached section of ext_ammo_box, kept in step at every assignment
+local ext_ammo_section = nil
 
 -- flag to force reload during the animation instead of afterwards
 local force_reload = false
@@ -115,8 +117,14 @@ end
 
 function do_interrupt()
 	action_state = ACTION_NONE
+	ext_ammo_section = nil
 	if mag_reload_speed then mag_reload_speed.clear_pending_mag() end
 	if mag_load_spinner then mag_load_spinner.clear_all() end
+end
+
+-- Section of the ammo box currently feeding the load loop, nil when idle
+function get_loading_box_section()
+	return ext_ammo_section
 end
 
 local time_event_cache = {}
@@ -249,6 +257,7 @@ function on_item_drag_dropped(item, weapon, from_slot, to_slot)
 				local delay = get_mag_time(weapon_sec, false)
 				print_dbg("Start load magazine at speed %s", delay)
 				ext_ammo_box = item  -- store object ref; get_object_by_id fails for container items
+				ext_ammo_section = item:section()
 				action_start_magload()
 				if mag_load_spinner then mag_load_spinner.begin(weapon_id) end
 				RemoveTimeEvent("Mag_redux", "load_mag"..weapon_id)
@@ -771,6 +780,8 @@ function load_magazine(magazine, capacity, delay)
 		local new_ammo_box = find_next_box(ammo_section, ext_ammo_obj:id())
 		alife_release(alife_object(ext_ammo_obj:id()))
 		ext_ammo_box = new_ammo_box  -- store next object ref (or nil to stop)
+		-- next box is the same caliber, so reuse ammo_section instead of querying it
+		ext_ammo_section = new_ammo_box and ammo_section or nil
 	else
 		ext_ammo_obj:ammo_set_count(num_bullets - 1)
 	end

@@ -66,6 +66,30 @@
         <text>How much to darken the magazine icon while topping up (0 = none, higher = darker).</text>
     </string>
 
+    <!-- Box flash enable -->
+    <string id="ui_mcm_magazines_spinner_box_flash_enable">
+        <text>Flash Source Ammo</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_box_flash_enable_desc">
+        <text>Fade the ammo box (or stack) you are loading from in and out while rounds are being moved into the magazine.</text>
+    </string>
+
+    <!-- Box flash strength -->
+    <string id="ui_mcm_magazines_spinner_box_flash_strength">
+        <text>Source Ammo Flash Strength (%)</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_box_flash_strength_desc">
+        <text>How far the box icon fades at the dim end of the pulse. Higher is more transparent.</text>
+    </string>
+
+    <!-- Box flash speed -->
+    <string id="ui_mcm_magazines_spinner_box_flash_speed">
+        <text>Source Ammo Flash Speed (%)</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_box_flash_speed_desc">
+        <text>Pulse speed. 100% is about one fade cycle per second.</text>
+    </string>
+
     <!-- Scale mode list values -->
     <string id="magazines_spinner_spinner_scale_lst_fixed">
         <text>Fixed Size</text>
