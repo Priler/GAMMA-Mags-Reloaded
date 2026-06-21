@@ -109,12 +109,14 @@ end
 function do_interrupt_magload()
 	if action_state == ACTION_LOAD_MAG then
 		action_state = ACTION_NONE
+		if mag_load_spinner then mag_load_spinner.clear_all() end
 	end
 end
 
 function do_interrupt()
 	action_state = ACTION_NONE
 	if mag_reload_speed then mag_reload_speed.clear_pending_mag() end
+	if mag_load_spinner then mag_load_spinner.clear_all() end
 end
 
 local time_event_cache = {}
@@ -248,6 +250,7 @@ function on_item_drag_dropped(item, weapon, from_slot, to_slot)
 				print_dbg("Start load magazine at speed %s", delay)
 				ext_ammo_box = item  -- store object ref; get_object_by_id fails for container items
 				action_start_magload()
+				if mag_load_spinner then mag_load_spinner.begin(weapon_id) end
 				RemoveTimeEvent("Mag_redux", "load_mag"..weapon_id)
 				create_time_event("Mag_redux", "load_mag"..weapon_id, 0.1, load_magazine, weapon, capacity, delay * 1000)
 			end
@@ -940,6 +943,7 @@ function func_unload_ammo(obj)
 		local delay = get_mag_time(obj:section(), true)	
 		print_dbg("Start unload magazine at speed %s", delay)
 		action_start_magload()
+		if mag_load_spinner then mag_load_spinner.begin(id) end
 		RemoveTimeEvent("mag_redux", "unload_mag"..id)
 		-- boxes = find_boxes(obj)
 		create_time_event("mag_redux","unload_mag"..id, 0.1, unload_magazine, obj, delay * 1000)

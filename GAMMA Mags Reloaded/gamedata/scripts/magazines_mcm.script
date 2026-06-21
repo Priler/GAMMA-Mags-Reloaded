@@ -30,6 +30,14 @@ local defaults = {
 	three_hands				= false,
     deathquality			= 1.0,
     deathammo				= 1.0,
+
+    spinner_enable			= true,
+    spinner_style			= "half_circle_dimmed",
+    spinner_scale			= 1,
+    spinner_size			= 24,
+    spinner_opacity			= 90,
+    spinner_dim				= true,
+    spinner_dim_amount		= 50,
 }
 
 local def_map = {
@@ -62,6 +70,14 @@ local def_map = {
 	three_hands				= "gameplay",
     deathquality			= "gameplay",
     deathammo				= "gameplay",
+
+    spinner_enable			= "spinner",
+    spinner_style			= "spinner",
+    spinner_scale			= "spinner",
+    spinner_size			= "spinner",
+    spinner_opacity			= "spinner",
+    spinner_dim				= "spinner",
+    spinner_dim_amount		= "spinner",
 }
 
 local colors = {--alpha value will be reset to match slider
@@ -119,6 +135,21 @@ function on_mcm_load()
             {id = "ejection" ,type= "list" ,val= 2, def= 1, content= {{0,"loadout"},{1,"ruck"}}},
 			{ id= "rant", type= "desc", text= "ui_mcm_magazines_rant", clr= {255, 225, 0, 0}},
             {id = "three_hands", type = "check", val = 1, def=false},
+        }},
+        {id = "spinner",sh=true,gr={
+            {id= "spntitle",type= "slide",text="ui_mcm_magazines_spntitle",link= "ui_options_slider_player",size= {512,50},spacing= 20},
+            {id = "spinner_enable", type = "check", val = 1, def=true},
+            {id = "spinner_style" ,type= "list" ,val= 0, def= "half_circle_dimmed", content= {
+                {"default","default"},{"arrows","arrows"},{"chasing_arrows","chasing_arrows"},{"fading_line","fading_line"},
+                {"growing_ring","growing_ring"},{"half_circle","half_circle"},{"half_circle_colored","half_circle_colored"},
+                {"half_circle_dimmed","half_circle_dimmed"},{"half_circle_green","half_circle_green"},{"line","line"},
+                {"recycle","recycle"},{"search","search"},{"search_orange","search_orange"},{"spinning_segments","spinning_segments"},
+                {"two_arrows","two_arrows"},{"wheel","wheel"}}},
+            {id = "spinner_scale" ,type= "list" ,val= 2, def= 1, content= {{1,"fixed"},{2,"scaled"}}},
+            {id = "spinner_size", type = "track", val = 2, min=16,max=64,step=4, def = 24},
+            {id = "spinner_opacity", type = "track", val = 2, min=10,max=100,step=5, def = 90},
+            {id = "spinner_dim", type = "check", val = 1, def=true},
+            {id = "spinner_dim_amount", type = "track", val = 2, min=0,max=90,step=5, def = 25},
         }},
         }
     }

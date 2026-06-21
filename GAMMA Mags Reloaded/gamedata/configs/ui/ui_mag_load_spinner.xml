@@ -1,0 +1,7 @@
+<w>
+    <!-- Cell loading spinner for a magazine being topped up / unloaded.
+         Texture is set dynamically in code based on the selected style -->
+    <mag_spinner x="0" y="0" width="24" height="24" stretch="1">
+        <texture>ui\loot_searching\default\icon_looting_01b</texture>
+    </mag_spinner>
+</w>

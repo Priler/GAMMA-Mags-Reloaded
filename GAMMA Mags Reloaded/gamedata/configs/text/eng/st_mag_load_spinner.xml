@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<string_table>
+    <!-- Sidebar subcategory name -->
+    <string id="ui_mcm_menu_spinner">
+        <text>Loading Spinner</text>
+    </string>
+
+    <!-- Group title -->
+    <string id="ui_mcm_magazines_spntitle">
+        <text>Loading Spinner</text>
+    </string>
+
+    <!-- Enable -->
+    <string id="ui_mcm_magazines_spinner_spinner_enable">
+        <text>Show Loading Spinner</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_spinner_enable_desc">
+        <text>Show an animated spinner over a magazine while it is being topped up or unloaded round by round.</text>
+    </string>
+
+    <!-- Style -->
+    <string id="ui_mcm_magazines_spinner_spinner_style">
+        <text>Spinner Style</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_spinner_style_desc">
+        <text>Visual style of the spinner animation.</text>
+    </string>
+
+    <!-- Scale mode -->
+    <string id="ui_mcm_magazines_spinner_spinner_scale">
+        <text>Spinner Size Mode</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_spinner_scale_desc">
+        <text>How the spinner is sized. Fixed uses the size below, Scaled fits it to the magazine icon (capped by the size below).</text>
+    </string>
+
+    <!-- Size -->
+    <string id="ui_mcm_magazines_spinner_spinner_size">
+        <text>Spinner Size (px)</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_spinner_size_desc">
+        <text>Spinner size in pixels (fixed mode) or maximum size (scaled mode).</text>
+    </string>
+
+    <!-- Opacity -->
+    <string id="ui_mcm_magazines_spinner_spinner_opacity">
+        <text>Spinner Opacity (%)</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_spinner_opacity_desc">
+        <text>Transparency of the spinner (10-100%).</text>
+    </string>
+
+    <!-- Dim enable -->
+    <string id="ui_mcm_magazines_spinner_spinner_dim">
+        <text>Dim Magazine Icon</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_spinner_dim_desc">
+        <text>Darken the magazine icon a little while the spinner is active.</text>
+    </string>
+
+    <!-- Dim amount -->
+    <string id="ui_mcm_magazines_spinner_spinner_dim_amount">
+        <text>Dim Amount (%)</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_spinner_dim_amount_desc">
+        <text>How much to darken the magazine icon while topping up (0 = none, higher = darker).</text>
+    </string>
+
+    <!-- Scale mode list values -->
+    <string id="magazines_spinner_spinner_scale_lst_fixed">
+        <text>Fixed Size</text>
+    </string>
+    <string id="magazines_spinner_spinner_scale_lst_scaled">
+        <text>Scale with Icon</text>
+    </string>
+
+    <!-- Style list values -->
+    <string id="magazines_spinner_spinner_style_lst_default">
+        <text>Default</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_arrows">
+        <text>Arrows</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_chasing_arrows">
+        <text>Chasing Arrows</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_fading_line">
+        <text>Fading Line</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_growing_ring">
+        <text>Growing Ring</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_half_circle">
+        <text>Half Circle</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_half_circle_colored">
+        <text>Half Circle (Colored)</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_half_circle_dimmed">
+        <text>Half Circle (Dimmed)</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_half_circle_green">
+        <text>Half Circle (Green)</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_line">
+        <text>Line</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_recycle">
+        <text>Recycle</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_search">
+        <text>Search</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_search_orange">
+        <text>Search (Orange)</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_spinning_segments">
+        <text>Spinning Segments</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_two_arrows">
+        <text>Two Arrows</text>
+    </string>
+    <string id="magazines_spinner_spinner_style_lst_wheel">
+        <text>Wheel</text>
+    </string>
+</string_table>

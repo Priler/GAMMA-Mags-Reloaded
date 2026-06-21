@@ -1,0 +1,192 @@
+--[[
+    Magazine Loading Spinner by Priler
+    Ported from: Looting takes time REDUX
+    t(-_-t)
+
+    Shows an animated spinner over a magazine cell while it is being topped up
+    or unloaded round by round, and optionally dims the magazine icon.
+
+    Driven by magazines.script: begin(id) on load/unload start, cleared on interrupt.
+--]]
+
+-- [mag_id] = true while that magazine is actively loading/unloading
+local active = {}
+
+-- known spinner style folders under textures\ui\loot_searching
+local known_styles = {
+    ["default"] = true, ["arrows"] = true, ["chasing_arrows"] = true,
+    ["fading_line"] = true, ["growing_ring"] = true, ["half_circle"] = true,
+    ["half_circle_colored"] = true, ["half_circle_dimmed"] = true,
+    ["half_circle_green"] = true, ["line"] = true, ["recycle"] = true,
+    ["search"] = true, ["search_orange"] = true, ["spinning_segments"] = true,
+    ["two_arrows"] = true, ["wheel"] = true,
+}
+
+local function cfg(key)
+    if not magazines_mcm then return nil end
+    return magazines_mcm.get_config(key)
+end
+
+-- STALKER UI is authored for 4:3, widescreen stretches width
+-- Cached once per session.
+local cached_aspect = nil
+local function aspect_correction()
+    if not cached_aspect then
+        local w, h = device().width, device().height
+        cached_aspect = (h / w) * (4 / 3)
+    end
+    return cached_aspect
+end
+
+local spinner_xml = nil
+local function get_xml()
+    if not spinner_xml then
+        spinner_xml = CScriptXmlInit()
+        spinner_xml:ParseFile("ui_mag_load_spinner.xml")
+    end
+    return spinner_xml
+end
+
+-- Build the spinner element as a child of a cell's icon.
+local function make_spinner(ico)
+    if not ico then return end
+    local xml = get_xml()
+    if not xml then return end
+
+    local spinner = xml:InitStatic("mag_spinner", ico)
+    if not spinner then return end
+
+    local style = cfg("spinner_style") or "half_circle_colored"
+    if not known_styles[style] then style = "half_circle_colored" end
+    spinner:InitTexture("ui\\loot_searching\\" .. style .. "\\icon_looting_01b")
+
+    local ico_w = ico:GetWidth()
+    local ico_h = ico:GetHeight()
+
+    local max_size = tonumber(cfg("spinner_size")) or 24
+    local sz
+    if tonumber(cfg("spinner_scale")) == 2 then
+        sz = math.min(ico_w, ico_h) * 0.5
+        sz = math.max(sz, 16)
+        sz = math.min(sz, max_size)
+    else
+        sz = max_size
+    end
+
+    local corrected_w = sz * aspect_correction()
+    spinner:SetWndSize(vector2():set(corrected_w, sz))
+    spinner:SetWndPos(vector2():set((ico_w - corrected_w) / 2, (ico_h - sz) / 2))
+    spinner:SetStretchTexture(true)
+
+    local opacity = tonumber(cfg("spinner_opacity")) or 90
+    local alpha = math.floor(opacity * 255 / 100)
+    spinner:SetTextureColor(GetARGB(alpha, 255, 255, 255))
+    spinner:Show(true)
+    return spinner
+end
+
+-- darkened icon color, or nil if dimming is off
+local function dim_color()
+    if cfg("spinner_dim") == false then return nil end
+    local amount = tonumber(cfg("spinner_dim_amount")) or 25
+    if amount <= 0 then return nil end
+    local v = math.floor(255 * (1 - amount / 100))
+    v = math.max(0, math.min(255, v))
+    return GetARGB(255, v, v, v)
+end
+
+local WHITE = GetARGB(255, 255, 255, 255)
+local watched_bags = { actor_bag = true, actor_trade_bag = true }
+
+-- public API
+function begin(id)
+    if not id then return end
+    if cfg("spinner_enable") == false then return end
+    active[id] = true
+end
+
+function finish(id)
+    if id then active[id] = nil end
+end
+
+function clear_all()
+    if next(active) then active = {} end
+end
+
+
+-- cell overlay: re-applied every UI update because the inventory
+-- rebuilds cells on each refresh during the load loop
+-- The marker lives on the cell item so it dies with the cell
+local base_Update = utils_ui.UICellContainer.Update
+function utils_ui.UICellContainer:Update(item_info, no_info, hide)
+    -- self.__mag_spin_dirty keeps the pass running for one extra cycle after the
+    -- last mag finishes, so the spinner created on the final load refresh still
+    -- gets hidden once active has already emptied
+    if watched_bags[self.ID] and (next(active) or self.__mag_spin_dirty) and cfg("spinner_enable") ~= false then
+        local dim = dim_color()
+        local still = false
+        for i = 1, #self.cell do
+            local ci = self.cell[i]
+            if ci and ci.ico and ci.ID then
+                local id = tonumber(ci.ID)
+                if id and active[id] then
+                    if dim then ci.ico:SetTextureColor(dim) end
+                    if not ci.__mag_spinner then
+                        ci.__mag_spinner = make_spinner(ci.ico)
+                    else
+                        ci.__mag_spinner:Show(true)
+                    end
+                    still = true
+                elseif ci.__mag_spinner then
+                    ci.__mag_spinner:Show(false)
+                    ci.__mag_spinner = nil
+                    ci.ico:SetTextureColor(WHITE)
+                end
+            end
+        end
+        self.__mag_spin_dirty = still
+    end
+    return base_Update(self, item_info, no_info, hide)
+end
+
+-- @NOTE: maybe this not needed, idk
+-- texture warm-up
+-- Animated .seq textures are uploaded to the GPU on first draw, so the very
+-- first spinner of a session would render blank
+-- pre-warm up as a workaround
+local warm_dlg = nil
+local warm_static = nil
+
+class "mag_spinner_warm" (CUIScriptWnd)
+function mag_spinner_warm:__init() super() end
+function mag_spinner_warm:__finalize() end
+
+local function apply_warm_texture()
+    if not warm_static then return end
+    local style = cfg("spinner_style") or "half_circle_colored"
+    if not known_styles[style] then style = "half_circle_colored" end
+    warm_static:InitTexture("ui\\loot_searching\\" .. style .. "\\icon_looting_01b")
+    warm_static:SetStretchTexture(true)
+    warm_static:SetTextureColor(GetARGB(0, 255, 255, 255))
+    warm_static:Show(true)
+end
+
+local function init_warm()
+    if warm_dlg then apply_warm_texture() return end
+    local hud = get_hud()
+    if not hud then return end
+    local xml = get_xml()
+    if not xml then return end
+    warm_dlg = mag_spinner_warm()
+    warm_dlg:SetWndRect(Frect():set(0, 0, 2, 2))
+    warm_static = xml:InitStatic("mag_spinner", warm_dlg)
+    warm_static:SetWndPos(vector2():set(0, 0))
+    warm_static:SetWndSize(vector2():set(2, 2))
+    apply_warm_texture()
+    hud:AddDialogToRender(warm_dlg)
+end
+
+function on_game_start()
+    RegisterScriptCallback("actor_on_first_update", init_warm)
+    RegisterScriptCallback("on_option_change", apply_warm_texture)
+end
