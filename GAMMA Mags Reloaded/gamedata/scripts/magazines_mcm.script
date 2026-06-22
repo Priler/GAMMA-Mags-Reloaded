@@ -159,10 +159,10 @@ function on_mcm_load()
             {id= "spntitle",type= "slide",text="ui_mcm_magazines_spntitle",link= "ui_options_slider_player",size= {512,50},spacing= 20},
             {id = "spinner_enable", type = "check", val = 1, def=true},
             {id = "spinner_style" ,type= "list" ,val= 0, def= "half_circle_dimmed", content= {
-                {"default","default"},{"arrows","arrows"},{"chasing_arrows","chasing_arrows"},{"fading_line","fading_line"},
+                {"default","default"},{"arrows","arrows"},{"chasing_arrows","chasing_arrows"},{"fading_line","fading_line"},{"fading_line_thick","fading_line_thick"},
                 {"growing_ring","growing_ring"},{"half_circle","half_circle"},{"half_circle_colored","half_circle_colored"},
                 {"half_circle_dimmed","half_circle_dimmed"},{"half_circle_green","half_circle_green"},{"line","line"},
-                {"recycle","recycle"},{"search","search"},{"search_orange","search_orange"},{"spinning_segments","spinning_segments"},
+                {"recycle","recycle"},{"spinning_segments","spinning_segments"},
                 {"two_arrows","two_arrows"},{"wheel","wheel"}}},
             {id = "spinner_scale" ,type= "list" ,val= 2, def= 1, content= {{1,"fixed"},{2,"scaled"}}},
             {id = "spinner_size", type = "track", val = 2, min=16,max=64,step=4, def = 24},

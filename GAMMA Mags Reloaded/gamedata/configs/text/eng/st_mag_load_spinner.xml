@@ -139,6 +139,9 @@
     <string id="magazines_spinner_spinner_style_lst_fading_line">
         <text>Fading Line</text>
     </string>
+    <string id="magazines_spinner_spinner_style_lst_fading_line_thick">
+        <text>Fading Line (Thick)</text>
+    </string>
     <string id="magazines_spinner_spinner_style_lst_growing_ring">
         <text>Growing Ring</text>
     </string>
@@ -159,12 +162,6 @@
     </string>
     <string id="magazines_spinner_spinner_style_lst_recycle">
         <text>Recycle</text>
-    </string>
-    <string id="magazines_spinner_spinner_style_lst_search">
-        <text>Search</text>
-    </string>
-    <string id="magazines_spinner_spinner_style_lst_search_orange">
-        <text>Search (Orange)</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_spinning_segments">
         <text>Spinning Segments</text>

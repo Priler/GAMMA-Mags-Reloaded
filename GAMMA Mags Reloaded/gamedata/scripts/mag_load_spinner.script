@@ -15,12 +15,34 @@ local active = {}
 -- known spinner style folders under textures\ui\loot_searching
 local known_styles = {
     ["default"] = true, ["arrows"] = true, ["chasing_arrows"] = true,
-    ["fading_line"] = true, ["growing_ring"] = true, ["half_circle"] = true,
+    ["fading_line"] = true, ["fading_line_thick"] = true,
+    ["growing_ring"] = true, ["half_circle"] = true,
     ["half_circle_colored"] = true, ["half_circle_dimmed"] = true,
     ["half_circle_green"] = true, ["line"] = true, ["recycle"] = true,
-    ["search"] = true, ["search_orange"] = true, ["spinning_segments"] = true,
+    ["spinning_segments"] = true,
     ["two_arrows"] = true, ["wheel"] = true,
 }
+
+-- each style ships one packed atlas (spinner_atlas.dds)
+local atlas_meta = {
+    ["arrows"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["chasing_arrows"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["default"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["fading_line"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["fading_line_thick"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["growing_ring"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["half_circle"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["half_circle_colored"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["half_circle_dimmed"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["half_circle_green"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["line"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["recycle"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["spinning_segments"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["two_arrows"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+    ["wheel"] = { fps = 26, frames = 13, cols = 4, rows = 4, tile = 128 },
+}
+
+local DEFAULT_STYLE = "half_circle_colored"
 
 local function cfg(key)
     if not magazines_mcm then return nil end
@@ -47,6 +69,32 @@ local function get_xml()
     return spinner_xml
 end
 
+-- selected style name, validated against the known set
+local function resolve_style()
+    local style = cfg("spinner_style") or DEFAULT_STYLE
+    if not known_styles[style] then style = DEFAULT_STYLE end
+    return style
+end
+
+local function style_meta(style)
+    return atlas_meta[style] or atlas_meta[DEFAULT_STYLE]
+end
+
+-- current frame index, advanced by wall-clock so every spinner stays in sync
+local function atlas_frame(meta)
+    local per = 1000 / (meta.fps or 26)
+    return math.floor(time_global() / per) % (meta.frames or 1)
+end
+
+-- point a static at tile f of its atlas
+local function set_frame(static, meta, f)
+    local col = f % meta.cols
+    local row = math.floor(f / meta.cols)
+    local x = col * meta.tile
+    local y = row * meta.tile
+    static:SetTextureRect(Frect():set(x, y, x + meta.tile, y + meta.tile))
+end
+
 -- Build the spinner element as a child of a cell's icon.
 local function make_spinner(ico)
     if not ico then return end
@@ -56,9 +104,10 @@ local function make_spinner(ico)
     local spinner = xml:InitStatic("mag_spinner", ico)
     if not spinner then return end
 
-    local style = cfg("spinner_style") or "half_circle_colored"
-    if not known_styles[style] then style = "half_circle_colored" end
-    spinner:InitTexture("ui\\loot_searching\\" .. style .. "\\icon_looting_01b")
+    local style = resolve_style()
+    local meta = style_meta(style)
+    spinner:InitTexture("ui\\loot_searching\\" .. style .. "\\spinner_atlas")
+    set_frame(spinner, meta, atlas_frame(meta))
 
     local ico_w = ico:GetWidth()
     local ico_h = ico:GetHeight()
@@ -342,6 +391,28 @@ local function flash_tick()
     end
 end
 
+-- advance every active spinner to the current atlas frame
+local function spinner_anim_tick()
+    if not next(active) then return end
+    if cfg("spinner_enable") == false then return end
+    local m = actor_menu_cc()
+    if not m then return end
+    local meta = style_meta(resolve_style())
+    local f = atlas_frame(meta)
+    for cc_id in pairs(watched_bags) do
+        local cc = m.CC[cc_id]
+        if cc and cc.cell then
+            for i = 1, #cc.cell do
+                local ci = cc.cell[i]
+                if ci and ci.ico and ci.ID and ci.__mag_spinner then
+                    local id = tonumber(ci.ID)
+                    if id and active[id] then set_frame(ci.__mag_spinner, meta, f) end
+                end
+            end
+        end
+    end
+end
+
 -- public API
 function begin(id)
     if not id then return end
@@ -453,9 +524,8 @@ end
 
 -- @NOTE: maybe this not needed, idk
 -- texture warm-up
--- Animated .seq textures are uploaded to the GPU on first draw, so the very
--- first spinner of a session would render blank
--- pre-warm up as a workaround
+-- A texture is uploaded to the GPU on first draw, so the very first spinner
+-- of a session could render blank for a frame. Pre-warm the atlas as a workaround.
 local warm_dlg = nil
 local warm_static = nil
 
@@ -465,9 +535,10 @@ function mag_spinner_warm:__finalize() end
 
 local function apply_warm_texture()
     if not warm_static then return end
-    local style = cfg("spinner_style") or "half_circle_colored"
-    if not known_styles[style] then style = "half_circle_colored" end
-    warm_static:InitTexture("ui\\loot_searching\\" .. style .. "\\icon_looting_01b")
+    local style = resolve_style()
+    local meta = style_meta(style)
+    warm_static:InitTexture("ui\\loot_searching\\" .. style .. "\\spinner_atlas")
+    set_frame(warm_static, meta, 0)
     warm_static:SetStretchTexture(true)
     warm_static:SetTextureColor(GetARGB(0, 255, 255, 255))
     warm_static:Show(true)
@@ -492,4 +563,5 @@ function on_game_start()
     RegisterScriptCallback("actor_on_first_update", init_warm)
     RegisterScriptCallback("on_option_change", apply_warm_texture)
     RegisterScriptCallback("actor_on_update", flash_tick)
+    RegisterScriptCallback("actor_on_update", spinner_anim_tick)
 end
