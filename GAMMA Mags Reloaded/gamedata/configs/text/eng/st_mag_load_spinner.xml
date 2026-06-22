@@ -2,12 +2,12 @@
 <string_table>
     <!-- Sidebar subcategory name -->
     <string id="ui_mcm_menu_spinner">
-        <text>Loading Spinner</text>
+        <text>Spinner/Gauge</text>
     </string>
 
     <!-- Group title -->
     <string id="ui_mcm_magazines_spntitle">
-        <text>Loading Spinner</text>
+        <text>Spinner/Gauge</text>
     </string>
 
     <!-- Enable -->
@@ -40,6 +40,14 @@
     </string>
     <string id="ui_mcm_magazines_spinner_spinner_size_desc">
         <text>Spinner size in pixels (fixed mode) or maximum size (scaled mode).</text>
+    </string>
+
+    <!-- Rotation speed -->
+    <string id="ui_mcm_magazines_spinner_spinner_speed">
+        <text>Spinner Speed</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_spinner_speed_desc">
+        <text>Scales how fast the spinner animates. 1.0 is normal, lower is slower, higher is faster.</text>
     </string>
 
     <!-- Opacity -->
@@ -118,6 +126,30 @@
         <text>Ease In-Out (Smooth)</text>
     </string>
 
+    <!-- Fill gauge enable -->
+    <string id="ui_mcm_magazines_spinner_gauge_enable">
+        <text>Show Fill Gauge</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_gauge_enable_desc">
+        <text>Draw an outer ring around the spinner that fills up as the magazine is topped up, showing how full it is.</text>
+    </string>
+
+    <!-- Fill gauge gap -->
+    <string id="ui_mcm_magazines_spinner_gauge_gap">
+        <text>Gauge Gap (px)</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_gauge_gap_desc">
+        <text>How much bigger the gauge ring is than the spinner. Higher values push the ring further out from the spinner.</text>
+    </string>
+
+    <!-- Fill gauge opacity -->
+    <string id="ui_mcm_magazines_spinner_gauge_opacity">
+        <text>Gauge Opacity (%)</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_gauge_opacity_desc">
+        <text>Transparency of the fill gauge ring (10-100%).</text>
+    </string>
+
     <!-- Scale mode list values -->
     <string id="magazines_spinner_spinner_scale_lst_fixed">
         <text>Fixed Size</text>
@@ -139,8 +171,8 @@
     <string id="magazines_spinner_spinner_style_lst_fading_line">
         <text>Fading Line</text>
     </string>
-    <string id="magazines_spinner_spinner_style_lst_fading_line_thick">
-        <text>Fading Line (Thick)</text>
+    <string id="magazines_spinner_spinner_style_lst_tarkov_like">
+        <text>Tarkov-like</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_growing_ring">
         <text>Growing Ring</text>
