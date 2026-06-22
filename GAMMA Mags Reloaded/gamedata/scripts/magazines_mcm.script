@@ -97,6 +97,15 @@ local colors = {--alpha value will be reset to match slider
     white = GetARGB(100, 255, 255, 255),
     brown = GetARGB(100, 165, 42, 42),
     blue = GetARGB(100, 0, 0, 255),
+
+    -- priler: colors extension
+    lime = GetARGB(100, 141, 232, 52),
+    khaki_green = GetARGB(100, 124, 159, 79),
+    khaki_desert = GetARGB(100, 173, 146, 57),
+    aqua = GetARGB(100, 49, 176, 231),
+    purple = GetARGB(100, 164, 112, 235),
+    teal = GetARGB(100, 7, 176, 176),
+    teal_dark = GetARGB(100, 111, 151, 170),
 }
 
 
@@ -114,7 +123,7 @@ function on_mcm_load()
             {id= "mag_tooltip" ,type= "list", val= 2  ,def= 1 ,content= {{0,"topround"},  {1,"trcap"}, {2,"full"}}	},
             {id = "empty_mags_stack", type = "check", val = 1, def=true},
             {id = "sort_inv", type = "check", val = 1, def=true},
-            {id= "highlight_color" ,type= "list"     ,val= 0  ,def= "orange" ,content= {{"brown","ram_brown"},{"white","ram_white"}, {"blond","ram_blond"} ,   {"blue","ram_blue"}, {"orange","ram_orange"} , {"pink","ram_pink"} }	},
+            {id= "highlight_color" ,type= "list"     ,val= 0  ,def= "orange" ,content= {{"brown","ram_brown"},{"white","ram_white"}, {"blond","ram_blond"} ,   {"blue","ram_blue"}, {"orange","ram_orange"} , {"pink","ram_pink"} , {"lime","ram_lime"} , {"khaki_green","ram_khaki_green"} , {"khaki_desert","ram_khaki_desert"} , {"aqua","ram_aqua"} , {"purple","ram_purple"} , {"teal","ram_teal"} , {"teal_dark","ram_teal_dark"} }	},
             {id= "highlight_clr_a" ,type= "track"    ,val= 2	,min= 0   ,max= 255    ,step= 1		,def= 100   },	
         }},
         {id = "hud",sh=true,gr={

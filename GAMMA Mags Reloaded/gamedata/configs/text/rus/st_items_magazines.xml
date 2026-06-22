@@ -111,6 +111,27 @@
 	<string id="ui_mcm_lst_ram_blue">
 		<text>Голубой</text>
 	</string>
+	<string id="ui_mcm_lst_ram_lime">
+		<text>Лаймовый</text>
+	</string>
+	<string id="ui_mcm_lst_ram_khaki_green">
+		<text>Хаки зелёный</text>
+	</string>
+	<string id="ui_mcm_lst_ram_khaki_desert">
+		<text>Хаки песочный</text>
+	</string>
+	<string id="ui_mcm_lst_ram_aqua">
+		<text>Аква</text>
+	</string>
+	<string id="ui_mcm_lst_ram_purple">
+		<text>Фиолетовый</text>
+	</string>
+	<string id="ui_mcm_lst_ram_teal">
+		<text>Бирюзовый</text>
+	</string>
+	<string id="ui_mcm_lst_ram_teal_dark">
+		<text>Тёмно-бирюзовый</text>
+	</string>
 	
 	<string id="ui_mcm_magazines_show_hud">
 		<text>Отображение на HUD</text>
