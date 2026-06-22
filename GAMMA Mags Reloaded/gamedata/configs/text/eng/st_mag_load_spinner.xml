@@ -74,20 +74,28 @@
         <text>Fade the ammo box (or stack) you are loading from in and out while rounds are being moved into the magazine.</text>
     </string>
 
-    <!-- Box flash strength -->
-    <string id="ui_mcm_magazines_spinner_box_flash_strength">
-        <text>Source Ammo Flash Strength (%)</text>
+    <!-- Magazine flash enable -->
+    <string id="ui_mcm_magazines_spinner_mag_flash_enable">
+        <text>Flash Magazine</text>
     </string>
-    <string id="ui_mcm_magazines_spinner_box_flash_strength_desc">
-        <text>How far the box icon fades at the dim end of the pulse. Higher is more transparent.</text>
+    <string id="ui_mcm_magazines_spinner_mag_flash_enable_desc">
+        <text>Fade the magazine being loaded or unloaded in and out, the same pulse used for the source ammo. Uses the shared strength and speed below.</text>
     </string>
 
-    <!-- Box flash speed -->
+    <!-- Flash strength (shared by source ammo and magazine) -->
+    <string id="ui_mcm_magazines_spinner_box_flash_strength">
+        <text>Flash Strength (%)</text>
+    </string>
+    <string id="ui_mcm_magazines_spinner_box_flash_strength_desc">
+        <text>How far the icon fades at the dim end of the pulse. Higher is more transparent. Shared by the source ammo and magazine flash.</text>
+    </string>
+
+    <!-- Flash speed (shared by source ammo and magazine) -->
     <string id="ui_mcm_magazines_spinner_box_flash_speed">
-        <text>Source Ammo Flash Speed (%)</text>
+        <text>Flash Speed (%)</text>
     </string>
     <string id="ui_mcm_magazines_spinner_box_flash_speed_desc">
-        <text>Pulse speed. 100% is about one fade cycle per second.</text>
+        <text>Pulse speed. 100% is about one fade cycle per second. Shared by the source ammo and magazine flash.</text>
     </string>
 
     <!-- Scale mode list values -->

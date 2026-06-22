@@ -156,13 +156,68 @@ local function restore_flash()
     flash_prev = nil
 end
 
-local function flash_tick()
-    if not next(active) then restore_flash() return end
-    if cfg("box_flash_enable") == false then restore_flash() return end
+-- magazine cell flash: shares strength and speed with the source ammo flash
+local function mag_flash_on()
+    return cfg("mag_flash_enable") ~= false
+end
+
+-- [cc_id] = { [mag_id] = true } cells we tinted last tick, so they restore cleanly
+local mag_flash_prev = {}
+
+local function restore_mag_flash()
+    if not next(mag_flash_prev) then return end
+    local m = actor_menu_cc()
+    if m then
+        for cc_id, ids in pairs(mag_flash_prev) do
+            local cc = m.CC[cc_id]
+            if cc and cc.cell then
+                for i = 1, #cc.cell do
+                    local ci = cc.cell[i]
+                    if ci and ci.ico and ci.ID and ids[tonumber(ci.ID)] then clear_flash(ci) end
+                end
+            end
+        end
+    end
+    mag_flash_prev = {}
+end
+
+local function mag_flash_step(m)
+    local now = {}
+    for cc_id in pairs(watched_bags) do
+        local cc = m.CC[cc_id]
+        if cc and cc.cell then
+            for i = 1, #cc.cell do
+                local ci = cc.cell[i]
+                if ci and ci.ico and ci.ID then
+                    local id = tonumber(ci.ID)
+                    if id and active[id] then
+                        apply_flash(ci)
+                        now[cc_id] = now[cc_id] or {}
+                        now[cc_id][id] = true
+                    end
+                end
+            end
+        end
+    end
+    -- clear cells tinted last tick whose magazine is no longer loading
+    for cc_id, ids in pairs(mag_flash_prev) do
+        local cc = m.CC[cc_id]
+        if cc and cc.cell then
+            for i = 1, #cc.cell do
+                local ci = cc.cell[i]
+                if ci and ci.ico and ci.ID then
+                    local id = tonumber(ci.ID)
+                    if id and ids[id] and not (now[cc_id] and now[cc_id][id]) then clear_flash(ci) end
+                end
+            end
+        end
+    end
+    mag_flash_prev = now
+end
+
+local function box_flash_step(m)
     local sec = magazines and magazines.get_loading_box_section and magazines.get_loading_box_section()
     if not sec then restore_flash() return end
-    local m = actor_menu_cc()
-    if not m then return end
 
     local ci, cc_id
     for i = 1, #flash_bags do
@@ -180,11 +235,33 @@ local function flash_tick()
     flash_prev = { cc_id = cc_id, sec = sec }
 end
 
+local function flash_tick()
+    if not next(active) then
+        restore_flash()
+        restore_mag_flash()
+        return
+    end
+    local m = actor_menu_cc()
+    if not m then return end
+
+    if cfg("box_flash_enable") == false then
+        restore_flash()
+    else
+        box_flash_step(m)
+    end
+
+    if mag_flash_on() then
+        mag_flash_step(m)
+    else
+        restore_mag_flash()
+    end
+end
+
 -- public API
 function begin(id)
     if not id then return end
-    -- active also gates the source-box flash, so keep it populated if either effect is on
-    if cfg("spinner_enable") == false and cfg("box_flash_enable") == false then return end
+    -- active gates the spinner, source-box flash and mag flash, so keep it populated if any is on
+    if cfg("spinner_enable") == false and cfg("box_flash_enable") == false and not mag_flash_on() then return end
     if not next(active) then flash_start = time_global() end
     active[id] = true
 end
@@ -208,6 +285,21 @@ local function reapply_box_flash(cc)
     if ci and ci.ico then apply_flash(ci) end
 end
 
+-- Reapply the magazine fade to one bag right after its cells were rebuilt
+local function reapply_mag_flash(cc)
+    if not (cc and cc.ID and watched_bags[cc.ID]) then return end
+    if not next(active) then return end
+    if not mag_flash_on() then return end
+    if not cc.cell then return end
+    for i = 1, #cc.cell do
+        local ci = cc.cell[i]
+        if ci and ci.ico and ci.ID then
+            local id = tonumber(ci.ID)
+            if id and active[id] then apply_flash(ci) end
+        end
+    end
+end
+
 
 -- cell overlay: re-applied every UI update because the inventory
 -- rebuilds cells on each refresh during the load loop
@@ -225,7 +317,8 @@ function utils_ui.UICellContainer:Update(item_info, no_info, hide)
             if ci and ci.ico and ci.ID then
                 local id = tonumber(ci.ID)
                 if id and active[id] then
-                    if dim then ci.ico:SetTextureColor(dim) end
+                    -- mag flash owns the icon color when on, so skip the static dim then
+                    if dim and not mag_flash_on() then ci.ico:SetTextureColor(dim) end
                     if not ci.__mag_spinner then
                         ci.__mag_spinner = make_spinner(ci.ico)
                     else
@@ -245,6 +338,7 @@ function utils_ui.UICellContainer:Update(item_info, no_info, hide)
     -- after the rebuild repaints the cell, restore the current fade so the box
     -- never renders at full opacity on a refresh frame
     reapply_box_flash(self)
+    reapply_mag_flash(self)
     return result
 end
 
