@@ -32,10 +32,10 @@ local defaults = {
     deathammo				= 1.0,
 
     spinner_enable			= true,
-    spinner_style			= "half_circle_dimmed",
+    spinner_style			= "tarkov_like",
     spinner_scale			= 1,
-    spinner_size			= 24,
-    spinner_speed			= 1.0,
+    spinner_size			= 22,
+    spinner_speed			= 0.6,
     spinner_opacity			= 90,
     spinner_dim				= false,
     spinner_dim_amount		= 50,
@@ -45,8 +45,8 @@ local defaults = {
     box_flash_speed			= 90,
     flash_easing			= "ease_in_out",
     gauge_enable			= true,
-    gauge_gap				= 6,
-    gauge_opacity			= 90,
+    gauge_gap				= 3,
+    gauge_opacity			= 70,
 }
 
 local def_map = {
@@ -166,18 +166,18 @@ function on_mcm_load()
         {id = "spinner",sh=true,gr={
             {id= "spntitle",type= "slide",text="ui_mcm_magazines_spntitle",link= "ui_options_slider_player",size= {512,50},spacing= 20},
             {id = "spinner_enable", type = "check", val = 1, def=true},
-            {id = "spinner_style" ,type= "list" ,val= 0, def= "half_circle_dimmed", content= {
+            {id = "spinner_style" ,type= "list" ,val= 0, def= "tarkov_like", content= {
                 {"default","default"},{"arrows","arrows"},{"chasing_arrows","chasing_arrows"},{"fading_line","fading_line"},{"tarkov_like","tarkov_like"},
                 {"growing_ring","growing_ring"},{"half_circle","half_circle"},{"half_circle_colored","half_circle_colored"},
                 {"half_circle_dimmed","half_circle_dimmed"},{"half_circle_green","half_circle_green"},{"line","line"},
                 {"recycle","recycle"},{"spinning_segments","spinning_segments"},
                 {"two_arrows","two_arrows"},{"wheel","wheel"}}},
             {id = "spinner_scale" ,type= "list" ,val= 2, def= 1, content= {{1,"fixed"},{2,"scaled"}}},
-            {id = "spinner_size", type = "track", val = 2, min=16,max=64,step=2, def = 24},
-            {id = "spinner_speed", type = "track", val = 2, min=0.3,max=2.0,step=0.1, def = 1.0},
+            {id = "spinner_size", type = "track", val = 2, min=16,max=64,step=2, def = 22},
+            {id = "spinner_speed", type = "track", val = 2, min=0.3,max=2.0,step=0.1, def = 0.6},
             {id = "spinner_opacity", type = "track", val = 2, min=10,max=100,step=5, def = 90},
             {id = "spinner_dim", type = "check", val = 1, def=false},
-            {id = "spinner_dim_amount", type = "track", val = 2, min=0,max=90,step=5, def = 25},
+            {id = "spinner_dim_amount", type = "track", val = 2, min=0,max=90,step=5, def = 50},
             {id = "box_flash_enable", type = "check", val = 1, def=true},
             {id = "mag_flash_enable", type = "check", val = 1, def=true},
             {id = "box_flash_strength", type = "track", val = 2, min=10,max=100,step=5, def = 95},
@@ -185,8 +185,8 @@ function on_mcm_load()
             {id = "flash_easing" ,type= "list" ,val= 0, def= "ease_in_out", content= {
                 {"linear","linear"},{"ease_in","ease_in"},{"ease_out","ease_out"},{"ease_in_out","ease_in_out"}}},
             {id = "gauge_enable", type = "check", val = 1, def=true},
-            {id = "gauge_gap", type = "track", val = 2, min=0,max=20,step=1, def = 6},
-            {id = "gauge_opacity", type = "track", val = 2, min=10,max=100,step=5, def = 90},
+            {id = "gauge_gap", type = "track", val = 2, min=0,max=20,step=1, def = 3},
+            {id = "gauge_opacity", type = "track", val = 2, min=10,max=100,step=5, def = 70},
         }},
         }
     }
