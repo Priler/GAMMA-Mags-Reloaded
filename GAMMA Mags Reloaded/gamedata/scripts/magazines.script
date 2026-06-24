@@ -76,6 +76,15 @@ local ext_ammo_section = nil
 
 -- flag to force reload during the animation instead of afterwards
 local force_reload = false
+
+-- holster-on-load: weapon slot to re-draw once the inventory closes
+local holster_saved_slot = nil
+
+-- is the actor inventory currently on screen
+local function inventory_shown()
+	local m = GetActorMenu()
+	return (m and m:IsShown()) or false
+end
 ------------------------
 -- SECTION debug info --
 ------------------------
@@ -100,6 +109,15 @@ end
 
 function action_start_magload()
 	action_state = ACTION_LOAD_MAG
+	-- put the weapon away when you start handling a magazine, remembering the slot
+	-- so it gets re-drawn once the inventory closes
+	if get_config("holster_on_load") and db.actor then
+		local s = db.actor:active_slot()
+		if s and s ~= 0 then
+			holster_saved_slot = s
+			db.actor:activate_slot(0)
+		end
+	end
 end
 
 function do_interrupt_reload()
@@ -670,6 +688,14 @@ function actor_on_update()
 	FADArun = enhanced_animations and enhanced_animations.used_item and true or false
 	if action_in_progress() and FADArun then
 		do_interrupt()
+	end
+	-- after a holster-on-load, re-draw the weapon once the inventory is closed
+	if holster_saved_slot and not inventory_shown() then
+		local s = holster_saved_slot
+		holster_saved_slot = nil
+		if db.actor and db.actor:active_slot() == 0 then
+			db.actor:activate_slot(s)
+		end
 	end
 end
 

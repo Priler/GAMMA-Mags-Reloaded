@@ -6,6 +6,7 @@ local defaults = {
     mag_tooltip             = 1,
     empty_mags_stack 		= true,
     sort_inv				= true,
+    holster_on_load			= true,
 
     show_hud				= true,
     icon_text				= true,
@@ -56,6 +57,7 @@ local def_map = {
     mag_tooltip             = "mgmt",
     empty_mags_stack 		= "mgmt",
     sort_inv				= "mgmt",
+    holster_on_load			= "mgmt",
 
     show_hud				= "hud",
     icon_text				= "hud",
@@ -131,6 +133,7 @@ function on_mcm_load()
             {id= "mag_tooltip" ,type= "list", val= 2  ,def= 1 ,content= {{0,"topround"},  {1,"trcap"}, {2,"full"}}	},
             {id = "empty_mags_stack", type = "check", val = 1, def=true},
             {id = "sort_inv", type = "check", val = 1, def=true},
+            {id = "holster_on_load", type = "check", val = 1, def=true},
             {id= "highlight_color" ,type= "list"     ,val= 0  ,def= "orange" ,content= {{"brown","ram_brown"},{"white","ram_white"}, {"blond","ram_blond"} ,   {"blue","ram_blue"}, {"orange","ram_orange"} , {"pink","ram_pink"} , {"lime","ram_lime"} , {"khaki_green","ram_khaki_green"} , {"khaki_desert","ram_khaki_desert"} , {"aqua","ram_aqua"} , {"purple","ram_purple"} , {"teal","ram_teal"} , {"teal_dark","ram_teal_dark"} }	},
             {id= "highlight_clr_a" ,type= "track"    ,val= 2	,min= 0   ,max= 255    ,step= 1		,def= 100   },	
         }},

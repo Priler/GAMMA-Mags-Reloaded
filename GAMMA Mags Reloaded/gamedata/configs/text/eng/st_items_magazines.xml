@@ -94,6 +94,12 @@
 	<string id="ui_mcm_magazines_mgmt_sort_inv_desc">
 		<text>Uncheck this if you don't like items in your inventory moving around when magazines are updated.</text>
 	</string>
+	<string id="ui_mcm_magazines_mgmt_holster_on_load">
+		<text>Holster weapon when loading mags</text>
+	</string>
+	<string id="ui_mcm_magazines_mgmt_holster_on_load_desc">
+		<text>When you start loading or unloading a magazine in the inventory, your weapon is put away (holstered). Draw it again with your weapon key.</text>
+	</string>
 	<string id="ui_mcm_magazines_mgmt_highlight_color">
 		<text>Highlight Color</text>
 	</string>
