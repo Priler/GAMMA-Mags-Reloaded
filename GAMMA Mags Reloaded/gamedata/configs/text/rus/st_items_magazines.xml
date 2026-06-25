@@ -61,6 +61,12 @@
 	<string id="ui_mcm_magazines_mag_unloadtime_factor_desc">
 		<text>Множитель для времени разряжания патронов \nЕсли помагазинное время на зарядку отключено, может расчитываться как секунды</text>
 	</string>
+	<string id="ui_mcm_magazines_mgmt_move_load_factor">
+		<text>Штраф за зарядку/разрядку в движении</text>
+	</string>
+	<string id="ui_mcm_magazines_mgmt_move_load_factor_desc">
+		<text>Насколько медленнее патроны заряжаются/разряжаются во время движения. 1 = без штрафа, 3 = в три раза медленнее (по умолчанию).</text>
+	</string>
 	<string id="ui_mcm_magazines_debug">
 		<text>Включить запись в Дебаг лог</text>
 	</string>

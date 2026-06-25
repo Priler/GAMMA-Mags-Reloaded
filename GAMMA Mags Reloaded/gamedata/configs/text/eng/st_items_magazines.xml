@@ -61,6 +61,12 @@
 	<string id="ui_mcm_magazines_mgmt_mag_unloadtime_factor_desc">
 		<text>Multiplier for bullet unload times</text>
 	</string>
+	<string id="ui_mcm_magazines_mgmt_move_load_factor">
+		<text>Moving load/unload penalty</text>
+	</string>
+	<string id="ui_mcm_magazines_mgmt_move_load_factor_desc">
+		<text>How much slower rounds load/unload while you are moving. 1 = no penalty, 3 = three times slower (default).</text>
+	</string>
 	<string id="ui_mcm_magazines_mgmt_mag_tooltip">
 		<text>Magazine Tooltip Information</text>
 	</string>

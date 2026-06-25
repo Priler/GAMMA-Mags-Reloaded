@@ -3,6 +3,7 @@ local defaults = {
     debug					= false,
     mag_loadtime_factor		= 1,
     mag_unloadtime_factor	= 1,
+    move_load_factor		= 3,
     mag_tooltip             = 1,
     empty_mags_stack 		= true,
     sort_inv				= true,
@@ -48,12 +49,21 @@ local defaults = {
     gauge_enable			= true,
     gauge_gap				= 3,
     gauge_opacity			= 70,
+
+    field_load_enable		= true,
+    field_hud_text			= true,
+    field_hud_size			= 32,
+    field_hud_opacity		= 90,
+    field_hud_x_offset		= 0,
+    field_hud_y_offset		= 0,
+    field_jump_cancel		= true,
 }
 
 local def_map = {
     debug					= "mgmt",
     mag_loadtime_factor		= "mgmt",
     mag_unloadtime_factor	= "mgmt",
+    move_load_factor		= "mgmt",
     mag_tooltip             = "mgmt",
     empty_mags_stack 		= "mgmt",
     sort_inv				= "mgmt",
@@ -98,6 +108,14 @@ local def_map = {
     gauge_enable			= "spinner",
     gauge_gap				= "spinner",
     gauge_opacity			= "spinner",
+
+    field_load_enable		= "field",
+    field_hud_text			= "field",
+    field_hud_size			= "field",
+    field_hud_opacity		= "field",
+    field_hud_x_offset		= "field",
+    field_hud_y_offset		= "field",
+    field_jump_cancel		= "field",
 }
 
 local colors = {--alpha value will be reset to match slider
@@ -130,6 +148,7 @@ function on_mcm_load()
             {id = "debug", type = "check", val = 1, def=false},
             {id = "mag_loadtime_factor", type = "track", val = 2, min=0.4,max=2,step=0.1, def = 1},
             {id = "mag_unloadtime_factor", type = "track", val = 2, min=0.4,max=2,step=0.1, def = 1},
+            {id = "move_load_factor", type = "track", val = 2, min=1,max=5,step=0.5, def = 3},
             {id= "mag_tooltip" ,type= "list", val= 2  ,def= 1 ,content= {{0,"topround"},  {1,"trcap"}, {2,"full"}}	},
             {id = "empty_mags_stack", type = "check", val = 1, def=true},
             {id = "sort_inv", type = "check", val = 1, def=true},
@@ -190,6 +209,16 @@ function on_mcm_load()
             {id = "gauge_enable", type = "check", val = 1, def=true},
             {id = "gauge_gap", type = "track", val = 2, min=0,max=20,step=1, def = 3},
             {id = "gauge_opacity", type = "track", val = 2, min=10,max=100,step=5, def = 70},
+        }},
+        {id = "field",sh=true,gr={
+            {id= "fldtitle",type= "slide",text="ui_mcm_magazines_fldtitle",link= "ui_options_slider_player",size= {512,50},spacing= 20},
+            {id = "field_load_enable", type = "check", val = 1, def=true},
+            {id = "field_hud_text", type = "check", val = 1, def=true},
+            {id = "field_hud_size", type = "track", val = 2, min=16,max=160,step=2, def = 32},
+            {id = "field_hud_opacity", type = "track", val = 2, min=10,max=100,step=5, def = 90},
+            {id = "field_hud_x_offset", type = "track", val = 2, min=-500,max=500,step=2, def = 0},
+            {id = "field_hud_y_offset", type = "track", val = 2, min=-400,max=400,step=2, def = 0},
+            {id = "field_jump_cancel", type = "check", val = 1, def=true},
         }},
         }
     }

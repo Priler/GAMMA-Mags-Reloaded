@@ -55,10 +55,6 @@ function print_err( text , ...)
 end
 
 
-
-
-
-
 -- actor action state
 local action_state = 0
 -- states (idle, mag to weapon reload in progress, ammo to mag load in progress)
@@ -77,8 +73,10 @@ local ext_ammo_section = nil
 -- flag to force reload during the animation instead of afterwards
 local force_reload = false
 
--- holster-on-load: weapon slot to re-draw once the inventory closes
+-- holster-on-load: weapon slot to re-draw once the load ends and the inventory is closed
 local holster_saved_slot = nil
+-- a drawn device (detector) lives outside the weapon slots, so it is hidden and restored separately
+local holster_saved_detector = false
 
 -- is the actor inventory currently on screen
 local function inventory_shown()
@@ -110,12 +108,17 @@ end
 function action_start_magload()
 	action_state = ACTION_LOAD_MAG
 	-- put the weapon away when you start handling a magazine, remembering the slot
-	-- so it gets re-drawn once the inventory closes
+	-- so it gets re-drawn once the load ends and the inventory is closed
 	if get_config("holster_on_load") and db.actor then
 		local s = db.actor:active_slot()
 		if s and s ~= 0 then
 			holster_saved_slot = s
 			db.actor:activate_slot(0)
+		end
+		-- a detector is not a weapon slot, so activate_slot(0) does not put it away
+		if db.actor:active_detector() then
+			holster_saved_detector = true
+			db.actor:hide_detector()
 		end
 	end
 end
@@ -131,6 +134,28 @@ function do_interrupt_magload()
 		action_state = ACTION_NONE
 		if mag_load_spinner then mag_load_spinner.clear_all() end
 	end
+end
+
+-- forget the slot saved at load start so the weapon is not auto-drawn afterwards
+-- (used when a busy-hands cancel should leave the weapon holstered, e.g. talk/trade)
+function forget_holster()
+	holster_saved_slot = nil
+	holster_saved_detector = false
+end
+
+-- slot the weapon was put away from for this load, nil when not holstered
+function get_holster_slot()
+	return holster_saved_slot
+end
+
+-- true while a detector we hid for this load is still waiting to be re-shown
+function is_detector_holstered()
+	return holster_saved_detector
+end
+
+-- a round-by-round mag load is currently running
+function is_loading_mag()
+	return action_state == ACTION_LOAD_MAG
 end
 
 function do_interrupt()
@@ -685,16 +710,24 @@ no need to change state since reload event is suppressed
 end
 
 function actor_on_update()
-	FADArun = enhanced_animations and enhanced_animations.used_item and true or false
-	if action_in_progress() and FADArun then
-		do_interrupt()
+	-- busy-hands detection (FDDA/lizzardman anims, sprint, device draw)
+	if mag_field_load and mag_field_load.busy_hands_tick then
+		mag_field_load.busy_hands_tick()
 	end
-	-- after a holster-on-load, re-draw the weapon once the inventory is closed
-	if holster_saved_slot and not inventory_shown() then
-		local s = holster_saved_slot
-		holster_saved_slot = nil
-		if db.actor and db.actor:active_slot() == 0 then
-			db.actor:activate_slot(s)
+
+	-- re-draw the weapon and re-show the detector holstered for a mag load, once the
+	-- load has ended and the inventory is closed
+	if (holster_saved_slot or holster_saved_detector) and not action_in_progress() and not inventory_shown() then
+		if holster_saved_slot then
+			local s = holster_saved_slot
+			holster_saved_slot = nil
+			if db.actor and db.actor:active_slot() == 0 then
+				db.actor:activate_slot(s)
+			end
+		end
+		if holster_saved_detector then
+			holster_saved_detector = false
+			if db.actor then db.actor:show_detector() end
 		end
 	end
 end
@@ -766,11 +799,11 @@ function load_magazine(magazine, capacity, delay)
 
 	local tg = time_global()
 	if tg < last_time + delay then return false end
-	if IsMoveState("mcAnyMove") and tg < last_time + (3 * delay) then return false end
+	if IsMoveState("mcAnyMove") and tg < last_time + (get_config("move_load_factor") * delay) then return false end
 	last_time = tg
 
 	print_dbg("Try load magazine, Action state: %s", action_state)
-	if action_state ~= ACTION_LOAD_MAG or ext_ammo_box == nil then 
+	if action_state ~= ACTION_LOAD_MAG or ext_ammo_box == nil then
 		print_dbg("ending load prematurely. is ammo box nil? %s", ext_ammo_box == nil)
 		do_interrupt()
 		inventory_refresh()
@@ -799,7 +832,17 @@ function load_magazine(magazine, capacity, delay)
 		last_time = 0
 		return true
 	end
-	local num_bullets = ext_ammo_obj:ammo_get_count()
+
+	-- the stored ammo-box reference can go stale if the engine releases/merges the
+	-- stack mid-load (e.g. an inventory re-sort)
+	local probe_ok, num_bullets = pcall(function() return ext_ammo_obj:ammo_get_count() end)
+	if not probe_ok then
+		ext_ammo_box = nil
+		do_interrupt()
+		inventory_refresh()
+		last_time = 0
+		return true
+	end
 	local ammo_section = ext_ammo_obj:section()
 	if num_bullets == 1 then
 		print_dbg("Searching for next box")
@@ -823,7 +866,7 @@ function unload_magazine(magazine, delay, boxes)
 	
 	local tg = time_global()
 	if tg < last_time + delay then return false end
-	if IsMoveState("mcAnyMove") and tg < last_time + (3 * delay) then return false end
+	if IsMoveState("mcAnyMove") and tg < last_time + (get_config("move_load_factor") * delay) then return false end
 
 	last_time = tg
 
@@ -927,17 +970,9 @@ function fast_unload_magazine(magazine)
 	timed_refresh()
 end
 
-local load_cancel = {
-	[key_bindings.kQUIT] = true,
-	[key_bindings.kINVENTORY] = true
-
-}
 function on_key_press(key, bind, dis, flags)
-	-- do not interrupt if directional key pressed
-	if action_state ~= ACTION_NONE and (load_cancel[bind] or key == DIK_keys.DIK_LMENU) then
-		print_dbg("Interrupting mag loading")
-		do_interrupt_magload()
-	end
+	-- field-aware load/unload key cancel lives in mag_field_load
+	if mag_field_load and mag_field_load.handle_load_cancel_key(key, bind, flags) then return end
 	if bind == key_bindings.kWPN_RELOAD then
 
 		local current_weapon = db.actor:item_in_slot(db.actor:active_slot())

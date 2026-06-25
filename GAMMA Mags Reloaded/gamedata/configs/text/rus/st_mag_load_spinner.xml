@@ -2,207 +2,207 @@
 <string_table>
     <!-- Sidebar subcategory name -->
     <string id="ui_mcm_menu_spinner">
-        <text>Spinner/Gauge</text>
+        <text>Индикаторы</text>
     </string>
 
     <!-- Group title -->
     <string id="ui_mcm_magazines_spntitle">
-        <text>Spinner/Gauge</text>
+        <text>Индикаторы</text>
     </string>
 
     <!-- Enable -->
     <string id="ui_mcm_magazines_spinner_spinner_enable">
-        <text>Show Loading Spinner</text>
+        <text>Показывать индикатор загрузки</text>
     </string>
     <string id="ui_mcm_magazines_spinner_spinner_enable_desc">
-        <text>Show an animated spinner over a magazine while it is being topped up or unloaded round by round.</text>
+        <text>Показывать анимированный индикатор над магазином, пока он заряжается или разряжается патрон за патроном.</text>
     </string>
 
     <!-- Style -->
     <string id="ui_mcm_magazines_spinner_spinner_style">
-        <text>Spinner Style</text>
+        <text>Стиль индикатора</text>
     </string>
     <string id="ui_mcm_magazines_spinner_spinner_style_desc">
-        <text>Visual style of the spinner animation.</text>
+        <text>Визуальный стиль анимации индикатора.</text>
     </string>
 
     <!-- Scale mode -->
     <string id="ui_mcm_magazines_spinner_spinner_scale">
-        <text>Spinner Size Mode</text>
+        <text>Режим размера индикатора</text>
     </string>
     <string id="ui_mcm_magazines_spinner_spinner_scale_desc">
-        <text>How the spinner is sized. Fixed uses the size below, Scaled fits it to the magazine icon (capped by the size below).</text>
+        <text>Как задаётся размер индикатора. Фиксированный использует размер ниже, Масштабируемый подгоняет его под значок магазина (с ограничением по размеру ниже).</text>
     </string>
 
     <!-- Size -->
     <string id="ui_mcm_magazines_spinner_spinner_size">
-        <text>Spinner Size (px)</text>
+        <text>Размер индикатора (px)</text>
     </string>
     <string id="ui_mcm_magazines_spinner_spinner_size_desc">
-        <text>Spinner size in pixels (fixed mode) or maximum size (scaled mode).</text>
+        <text>Размер индикатора в пикселях (фиксированный режим) или максимальный размер (масштабируемый режим).</text>
     </string>
 
     <!-- Rotation speed -->
     <string id="ui_mcm_magazines_spinner_spinner_speed">
-        <text>Spinner Speed</text>
+        <text>Скорость индикатора</text>
     </string>
     <string id="ui_mcm_magazines_spinner_spinner_speed_desc">
-        <text>Scales how fast the spinner animates. 1.0 is normal, lower is slower, higher is faster.</text>
+        <text>Регулирует скорость анимации индикатора. 1.0 - обычная, меньше - медленнее, больше - быстрее.</text>
     </string>
 
     <!-- Opacity -->
     <string id="ui_mcm_magazines_spinner_spinner_opacity">
-        <text>Spinner Opacity (%)</text>
+        <text>Непрозрачность индикатора (%)</text>
     </string>
     <string id="ui_mcm_magazines_spinner_spinner_opacity_desc">
-        <text>Transparency of the spinner (10-100%).</text>
+        <text>Прозрачность индикатора (10-100%).</text>
     </string>
 
     <!-- Dim enable -->
     <string id="ui_mcm_magazines_spinner_spinner_dim">
-        <text>Dim Magazine Icon</text>
+        <text>Затемнять значок магазина</text>
     </string>
     <string id="ui_mcm_magazines_spinner_spinner_dim_desc">
-        <text>Darken the magazine icon a little while the spinner is active.</text>
+        <text>Немного затемнять значок магазина, пока активен индикатор.</text>
     </string>
 
     <!-- Dim amount -->
     <string id="ui_mcm_magazines_spinner_spinner_dim_amount">
-        <text>Dim Amount (%)</text>
+        <text>Степень затемнения (%)</text>
     </string>
     <string id="ui_mcm_magazines_spinner_spinner_dim_amount_desc">
-        <text>How much to darken the magazine icon while topping up (0 = none, higher = darker).</text>
+        <text>Насколько затемнять значок магазина во время зарядки (0 = без затемнения, больше = темнее).</text>
     </string>
 
     <!-- Box flash enable -->
     <string id="ui_mcm_magazines_spinner_box_flash_enable">
-        <text>Flash Source Ammo</text>
+        <text>Мигание исходных патронов</text>
     </string>
     <string id="ui_mcm_magazines_spinner_box_flash_enable_desc">
-        <text>Fade the ammo box (or stack) you are loading from in and out while rounds are being moved into the magazine.</text>
+        <text>Плавно затемнять и подсвечивать пачку (или стопку) патронов, из которой идёт зарядка, пока патроны перемещаются в магазин.</text>
     </string>
 
     <!-- Magazine flash enable -->
     <string id="ui_mcm_magazines_spinner_mag_flash_enable">
-        <text>Flash Magazine</text>
+        <text>Мигание магазина</text>
     </string>
     <string id="ui_mcm_magazines_spinner_mag_flash_enable_desc">
-        <text>Fade the magazine being loaded or unloaded in and out, the same pulse used for the source ammo. Uses the shared strength and speed below.</text>
+        <text>Плавно затемнять и подсвечивать заряжаемый или разряжаемый магазин - та же пульсация, что и для исходных патронов. Использует общую силу и скорость, заданные ниже.</text>
     </string>
 
     <!-- Flash strength (shared by source ammo and magazine) -->
     <string id="ui_mcm_magazines_spinner_box_flash_strength">
-        <text>Flash Strength (%)</text>
+        <text>Сила мигания (%)</text>
     </string>
     <string id="ui_mcm_magazines_spinner_box_flash_strength_desc">
-        <text>How far the icon fades at the dim end of the pulse. Higher is more transparent, 100% fades it fully out. Shared by the source ammo and magazine flash.</text>
+        <text>Насколько значок затухает в тёмной фазе пульсации. Больше - прозрачнее, 100% полностью скрывает его. Общий параметр для мигания исходных патронов и магазина.</text>
     </string>
 
     <!-- Flash speed (shared by source ammo and magazine) -->
     <string id="ui_mcm_magazines_spinner_box_flash_speed">
-        <text>Flash Speed (%)</text>
+        <text>Скорость мигания (%)</text>
     </string>
     <string id="ui_mcm_magazines_spinner_box_flash_speed_desc">
-        <text>Pulse speed. 100% is about one fade cycle per second. Shared by the source ammo and magazine flash.</text>
+        <text>Скорость пульсации. 100% - примерно один цикл затухания в секунду. Общий параметр для мигания исходных патронов и магазина.</text>
     </string>
 
     <!-- Flash easing (shared by source ammo and magazine) -->
     <string id="ui_mcm_magazines_spinner_flash_easing">
-        <text>Flash Curve</text>
+        <text>Кривая мигания</text>
     </string>
     <string id="ui_mcm_magazines_spinner_flash_easing_desc">
-        <text>Shape of the fade. Linear is a constant rate, Ease In lingers bright then snaps dim, Ease Out snaps dim then lingers, Ease In-Out is smooth at both ends. Shared by the source ammo and magazine flash.</text>
+        <text>Форма затухания. Линейная - постоянная скорость, Плавный вход держит яркость, затем резко гаснет, Плавный выход резко гаснет, затем затухает плавно, Плавный вход-выход плавный с обоих концов. Общий параметр для мигания исходных патронов и магазина.</text>
     </string>
     <string id="magazines_spinner_flash_easing_lst_linear">
-        <text>Linear</text>
+        <text>Линейная</text>
     </string>
     <string id="magazines_spinner_flash_easing_lst_ease_in">
-        <text>Ease In</text>
+        <text>Плавный вход</text>
     </string>
     <string id="magazines_spinner_flash_easing_lst_ease_out">
-        <text>Ease Out</text>
+        <text>Плавный выход</text>
     </string>
     <string id="magazines_spinner_flash_easing_lst_ease_in_out">
-        <text>Ease In-Out (Smooth)</text>
+        <text>Плавный вход-выход (гладко)</text>
     </string>
 
     <!-- Fill gauge enable -->
     <string id="ui_mcm_magazines_spinner_gauge_enable">
-        <text>Show Fill Gauge</text>
+        <text>Показывать шкалу заполнения</text>
     </string>
     <string id="ui_mcm_magazines_spinner_gauge_enable_desc">
-        <text>Draw an outer ring around the spinner that fills up as the magazine is topped up, showing how full it is.</text>
+        <text>Рисовать внешнее кольцо вокруг индикатора, которое заполняется по мере зарядки магазина, показывая степень заполнения.</text>
     </string>
 
     <!-- Fill gauge gap -->
     <string id="ui_mcm_magazines_spinner_gauge_gap">
-        <text>Gauge Gap (px)</text>
+        <text>Зазор шкалы (px)</text>
     </string>
     <string id="ui_mcm_magazines_spinner_gauge_gap_desc">
-        <text>How much bigger the gauge ring is than the spinner. Higher values push the ring further out from the spinner.</text>
+        <text>Насколько кольцо шкалы больше индикатора. Большие значения отодвигают кольцо дальше от индикатора.</text>
     </string>
 
     <!-- Fill gauge opacity -->
     <string id="ui_mcm_magazines_spinner_gauge_opacity">
-        <text>Gauge Opacity (%)</text>
+        <text>Непрозрачность шкалы (%)</text>
     </string>
     <string id="ui_mcm_magazines_spinner_gauge_opacity_desc">
-        <text>Transparency of the fill gauge ring (10-100%).</text>
+        <text>Прозрачность кольца шкалы заполнения (10-100%).</text>
     </string>
 
     <!-- Scale mode list values -->
     <string id="magazines_spinner_spinner_scale_lst_fixed">
-        <text>Fixed Size</text>
+        <text>Фиксированный размер</text>
     </string>
     <string id="magazines_spinner_spinner_scale_lst_scaled">
-        <text>Scale with Icon</text>
+        <text>Масштаб по значку</text>
     </string>
 
     <!-- Style list values -->
     <string id="magazines_spinner_spinner_style_lst_default">
-        <text>Default</text>
+        <text>По умолчанию</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_arrows">
-        <text>Arrows</text>
+        <text>Стрелки</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_chasing_arrows">
-        <text>Chasing Arrows</text>
+        <text>Догоняющие стрелки</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_fading_line">
-        <text>Fading Line</text>
+        <text>Затухающая линия</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_tarkov_like">
-        <text>Tarkov-like</text>
+        <text>Тарков-лайк</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_growing_ring">
-        <text>Growing Ring</text>
+        <text>Растущее кольцо</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_half_circle">
-        <text>Half Circle</text>
+        <text>Полукруг</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_half_circle_colored">
-        <text>Half Circle (Colored)</text>
+        <text>Полукруг (цветной)</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_half_circle_dimmed">
-        <text>Half Circle (Dimmed)</text>
+        <text>Полукруг (приглушённый)</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_half_circle_green">
-        <text>Half Circle (Green)</text>
+        <text>Полукруг (зелёный)</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_line">
-        <text>Line</text>
+        <text>Линия</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_recycle">
-        <text>Recycle</text>
+        <text>Переработка</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_spinning_segments">
-        <text>Spinning Segments</text>
+        <text>Вращающиеся сегменты</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_two_arrows">
-        <text>Two Arrows</text>
+        <text>Две стрелки</text>
     </string>
     <string id="magazines_spinner_spinner_style_lst_wheel">
-        <text>Wheel</text>
+        <text>Колесо</text>
     </string>
 
 
@@ -210,67 +210,67 @@
 
     <!-- Sidebar subcategory name -->
     <string id="ui_mcm_menu_field">
-        <text>Field Loading</text>
+        <text>Полевая зарядка</text>
     </string>
 
     <!-- Group title -->
     <string id="ui_mcm_magazines_fldtitle">
-        <text>Field Loading</text>
+        <text>Полевая зарядка</text>
     </string>
 
     <!-- Enable -->
     <string id="ui_mcm_magazines_field_field_load_enable">
-        <text>Enable Field Loading</text>
+        <text>Включить полевую зарядку</text>
     </string>
     <string id="ui_mcm_magazines_field_field_load_enable_desc">
-        <text>Keep a magazine loading or unloading after you close the inventory, with an on-screen spinner and fill gauge. Off restores the classic behavior where closing the inventory cancels the load.</text>
+        <text>Продолжать зарядку или разрядку магазина после закрытия инвентаря, с экранным индикатором и шкалой заполнения. При выключении возвращается классическое поведение: закрытие инвентаря отменяет зарядку.</text>
     </string>
 
     <!-- Show count text -->
     <string id="ui_mcm_magazines_field_field_hud_text">
-        <text>Show Round Count</text>
+        <text>Показывать счётчик патронов</text>
     </string>
     <string id="ui_mcm_magazines_field_field_hud_text_desc">
-        <text>Show the current round count under the gauge, for example "12 / 30", while loading with the inventory closed.</text>
+        <text>Показывать текущий счётчик патронов под шкалой, например "12 / 30", во время зарядки при закрытом инвентаре.</text>
     </string>
 
     <!-- Size -->
     <string id="ui_mcm_magazines_field_field_hud_size">
-        <text>Field HUD Size (px)</text>
+        <text>Размер полевого HUD (px)</text>
     </string>
     <string id="ui_mcm_magazines_field_field_hud_size_desc">
-        <text>Size of the on-screen spinner and gauge shown while loading with the inventory closed.</text>
+        <text>Размер экранного индикатора и шкалы, отображаемых во время зарядки при закрытом инвентаре.</text>
     </string>
 
     <!-- Opacity -->
     <string id="ui_mcm_magazines_field_field_hud_opacity">
-        <text>Field HUD Opacity (%)</text>
+        <text>Непрозрачность полевого HUD (%)</text>
     </string>
     <string id="ui_mcm_magazines_field_field_hud_opacity_desc">
-        <text>Transparency of the on-screen spinner and gauge (10-100%).</text>
+        <text>Прозрачность экранного индикатора и шкалы (10-100%).</text>
     </string>
 
     <!-- X offset -->
     <string id="ui_mcm_magazines_field_field_hud_x_offset">
-        <text>Field HUD X Offset</text>
+        <text>Смещение полевого HUD по X</text>
     </string>
     <string id="ui_mcm_magazines_field_field_hud_x_offset_desc">
-        <text>Shift the field HUD left or right from the center of the screen.</text>
+        <text>Сдвигать полевой HUD влево или вправо от центра экрана.</text>
     </string>
 
     <!-- Y offset -->
     <string id="ui_mcm_magazines_field_field_hud_y_offset">
-        <text>Field HUD Y Offset</text>
+        <text>Смещение полевого HUD по Y</text>
     </string>
     <string id="ui_mcm_magazines_field_field_hud_y_offset_desc">
-        <text>Shift the field HUD up or down from its default lower-center position.</text>
+        <text>Сдвигать полевой HUD вверх или вниз от стандартного положения в нижней части по центру.</text>
     </string>
 
     <!-- Jump cancels loading -->
     <string id="ui_mcm_magazines_field_field_jump_cancel">
-        <text>Jumping Cancels Loading</text>
+        <text>Прыжок отменяет зарядку</text>
     </string>
     <string id="ui_mcm_magazines_field_field_jump_cancel_desc">
-        <text>Stop an in-progress field load when you jump. A jump jostles a careful round-by-round load, so by default it cancels it.</text>
+        <text>Останавливать текущую полевую зарядку при прыжке. Прыжок сбивает аккуратную зарядку патрон за патроном, поэтому по умолчанию он её отменяет.</text>
     </string>
 </string_table>
