@@ -298,8 +298,6 @@ function handle_load_cancel_key(key, bind, flags)
 				flags.ret_value = false
 			end
 			return true
-		elseif key == DIK_keys.DIK_LMENU then
-			magazines.do_interrupt_magload()
 		end
 	elseif cancel_binds[bind] or key == DIK_keys.DIK_LMENU then
 		-- field loading off: closing the inventory or quitting cancels (classic)

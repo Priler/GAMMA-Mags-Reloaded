@@ -20,6 +20,22 @@
         >Use the Animated Magazine Loading hand animations for round-by-round mag loading and unloading. Turn off to keep the inventory cell spinner.</text>
 	</string>
 
+	<!-- AML animation speed multipliers -->
+	<string id="ui_mcm_magazines_compat_aml_anim_load_speed">
+		<text>AML Load Animation Speed</text>
+	</string>
+	<string id="ui_mcm_magazines_compat_aml_anim_load_speed_desc">
+		<text
+        >Playback speed multiplier for the Animated Magazine Loading load animation. 1.0 is the base speed; higher is faster, lower is slower. Rounds are fed in time with the animation, so this also changes how fast the magazine fills.</text>
+	</string>
+	<string id="ui_mcm_magazines_compat_aml_anim_unload_speed">
+		<text>AML Unload Animation Speed</text>
+	</string>
+	<string id="ui_mcm_magazines_compat_aml_anim_unload_speed_desc">
+		<text
+        >Playback speed multiplier for the Animated Magazine Loading unload animation. 1.0 is the base speed; higher is faster, lower is slower. Rounds are removed in time with the animation, so this also changes how fast the magazine empties.</text>
+	</string>
+
 	<!-- Direct magazine load -->
 	<string id="ui_mcm_magazines_compat_direct_desc">
 		<text

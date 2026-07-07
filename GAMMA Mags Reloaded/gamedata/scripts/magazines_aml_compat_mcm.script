@@ -15,7 +15,7 @@
 -- shown as a subcategory of the main "Magazines" MCM page
 local MCM_PAGE = "magazines"
 local MCM_GROUP = "aml_compat"
-local DEFAULTS = { aml_enable = true }
+local DEFAULTS = { aml_enable = true, aml_anim_load_speed = 1.0, aml_anim_unload_speed = 1.0 }
 
 local function cfg(key)
 	if ui_mcm then
@@ -53,6 +53,11 @@ local function apply()
 			)
 		end
 	end
+
+	-- push the animation speed multipliers to the driver (no-op for older AML builds)
+	if aml_present() and magazines_aml.set_speed then
+		magazines_aml.set_speed(cfg("aml_anim_load_speed") or 1.0, cfg("aml_anim_unload_speed") or 1.0)
+	end
 end
 
 -- default direct-load key
@@ -81,6 +86,27 @@ function get_mcm_group()
 		}
 		-- hint pins the label string id to ui_mcm_magazines_compat_aml_enable
 		gr[#gr + 1] = { id = "aml_enable", type = "check", val = 1, def = true, hint = "magazines_compat_aml_enable" }
+		-- animation speed multipliers for the AML load/unload hand anims (1.0 = base)
+		gr[#gr + 1] = {
+			id = "aml_anim_load_speed",
+			type = "track",
+			val = 2,
+			min = 0.5,
+			max = 2.0,
+			step = 0.05,
+			def = 1.0,
+			hint = "magazines_compat_aml_anim_load_speed",
+		}
+		gr[#gr + 1] = {
+			id = "aml_anim_unload_speed",
+			type = "track",
+			val = 2,
+			min = 0.5,
+			max = 2.0,
+			step = 0.05,
+			def = 1.0,
+			hint = "magazines_compat_aml_anim_unload_speed",
+		}
 		gr[#gr + 1] = { id = "direct_line", type = "line" }
 	end
 
@@ -119,10 +145,14 @@ function get_mcm_group()
 		val = 0,
 		def = "fullest",
 		hint = "magazines_compat_direct_order",
-		content = { { "fullest", "dl_order_fullest" }, { "emptiest", "dl_order_emptiest" }, {
-			"marked",
-			"dl_order_marked",
-		} },
+		content = {
+			{ "fullest", "dl_order_fullest" },
+			{ "emptiest", "dl_order_emptiest" },
+			{
+				"marked",
+				"dl_order_marked",
+			},
+		},
 	}
 
 	return { id = MCM_GROUP, sh = true, gr = gr }
