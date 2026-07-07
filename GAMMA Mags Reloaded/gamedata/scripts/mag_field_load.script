@@ -93,6 +93,27 @@ local function cancel_and_free_hands()
 	cancel_load()
 end
 
+-- true while the AML driver is playing any load animation (including the hide)
+local function driver_animating()
+	local d = magazines and magazines.get_load_driver and magazines.get_load_driver()
+	return (d and d.is_animating and d.is_animating()) and true or false
+end
+
+-- Container/corpse looting FDDA redone queued open prevention
+local loot_start_base = nil
+local function wrap_loot_start()
+	if loot_start_base or not (lam2 and ui_inventory and ui_inventory.start) then
+		return
+	end
+	loot_start_base = ui_inventory.start
+	ui_inventory.start = function(mode, obj)
+		if mode == "loot" and loading_mag() and driver_animating() then
+			return
+		end
+		return loot_start_base(mode, obj)
+	end
+end
+
 -- Free Zoom only changes the FOV, so no cancel
 local function free_zoom_active()
 	return (Free_ZoomV2_mcm and Free_ZoomV2_mcm.freezooming) and true or false
@@ -287,6 +308,10 @@ function handle_load_cancel_key(key, bind, flags)
 end
 
 function on_game_start()
+	-- FDDA's own ui_inventory.start wrapper is installed at its file scope, which
+	-- loads before this file, so we wrap on top of it here
+	wrap_loot_start()
+
 	-- the load state is owned by magazines.script
 	RegisterScriptCallback("actor_on_changed_slot", on_changed_slot)
 	RegisterScriptCallback("ActorMenu_on_mode_changed", on_mode_changed)
