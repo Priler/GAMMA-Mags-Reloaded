@@ -204,6 +204,8 @@ end
             return true to take over the per-round loop for this load/unload
         driver.interrupt()
             stop, remove the cam effector and play the hide anim
+        driver.is_animating() -> bool (optional)
+            true while any driver animation (including the hide) is in flight
 
 	While the driver owns the loop it paces rounds via load_one_round/unload_one_round
 	and we skip our own timed loop and the cell overlay.
@@ -233,10 +235,9 @@ function begin_round_loop(magazine, is_unload, capacity, delay)
 		mag_load_spinner.begin(id, is_unload)
 	end
 
-	-- Force mag load/unload inside body loot windows to skip AML animation
-	local parent = magazine:parent()
-	local actor_owned = parent and parent:id() == 0
-	if actor_owned and load_driver and load_driver.claim then
+	-- a registered driver may take over the per-round loop (plays its own anim)
+	-- it can also decline (e.g. a mag it cannot safely animate), in which case our timed loop below runs instead
+	if load_driver and load_driver.claim then
 		local ok, claimed = pcall(load_driver.claim, magazine, is_unload, capacity, delay)
 		if ok and claimed then
 			return
@@ -858,7 +859,14 @@ function actor_on_update()
 
 	-- re-draw the weapon and re-show the detector holstered for a mag load, once the
 	-- load has ended and the inventory is closed
-	if (holster_saved_slot or holster_saved_detector) and not action_in_progress() and not inventory_shown() then
+	-- Wait for an animated driver to finish its hide too, so the weapon does not pop in over the hide animation
+	local driver_animating = load_driver and load_driver.is_animating and load_driver.is_animating()
+	if
+		(holster_saved_slot or holster_saved_detector)
+		and not action_in_progress()
+		and not inventory_shown()
+		and not driver_animating
+	then
 		if holster_saved_slot then
 			local s = holster_saved_slot
 			holster_saved_slot = nil
