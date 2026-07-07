@@ -23,6 +23,25 @@ end
 local last_detector_active = false
 local last_inv_shown = false
 
+-- weapon-slot selection keys WORK-AROUND bruh
+-- A deliberate weapon draw always follows one of these.
+-- an engine/other-mod auto-re-equip does not afaik.
+-- So we stamp the press time and let on_changed_slot tell the two apart
+-- crutch possibly, but fuck it
+local wpn_draw_binds = {
+	[key_bindings.kWPN_1] = true,
+	[key_bindings.kWPN_2] = true,
+	[key_bindings.kWPN_3] = true,
+	[key_bindings.kWPN_4] = true,
+	[key_bindings.kWPN_5] = true,
+	[key_bindings.kWPN_6] = true,
+	[key_bindings.kWPN_NEXT] = true,
+}
+local last_wpn_key_tg = 0
+
+-- a slot change within this window of a weapon key is a real draw
+local WPN_KEY_WINDOW = 250
+
 -- lam2 (FDDA Redone) also runs involuntary, cosmetic animations while you just
 -- stand there: an auto mask wipe in rain, a headlamp toggle, the weapon
 -- lower/raise housekeeping.
@@ -64,6 +83,22 @@ end
 
 local function loading_mag()
 	return magazines and magazines.is_loading_mag and magazines.is_loading_mag()
+end
+
+-- diagnostics: name the cause of the cancel we are about to trigger
+local function diag_arm(reason)
+	if mag_field_diag and mag_field_diag.arm then
+		mag_field_diag.arm(reason)
+	end
+end
+
+-- tag of the lam2 action currently on the hands, for the diag reason string
+local function current_lam2_tag()
+	if not (lam2 and lam2.get_current_action) then
+		return "none"
+	end
+	local act = lam2.get_current_action()
+	return (act and act.tag) or "none"
 end
 
 local function cancel_load()
@@ -145,6 +180,7 @@ function busy_hands_tick()
 	local menu_open = (GetActorMenu() and GetActorMenu():IsShown()) or false
 	local hands_busy = ea_used or lam2_bsy
 	if hands_busy and not menu_open and magazines.action_in_progress and magazines.action_in_progress() then
+		diag_arm("busy_hands:" .. (ea_used and "fdda_used_item" or ("lam2:" .. current_lam2_tag())))
 		if magazines.do_interrupt then
 			magazines.do_interrupt()
 		end
@@ -152,6 +188,7 @@ function busy_hands_tick()
 
 	-- you cannot top up a mag while sprinting
 	if IsMoveState("mcSprint") then
+		diag_arm("sprint")
 		cancel_load()
 	end
 
@@ -164,6 +201,7 @@ function busy_hands_tick()
 	local det_holstered = magazines.is_detector_holstered and magazines.is_detector_holstered()
 	if det_now and not last_detector_active and not inv and not last_inv_shown and not det_holstered then
 		-- if a player deliberately pulled a device
+		diag_arm("detector_draw")
 		cancel_load_holstered()
 	end
 	last_detector_active = det_now
@@ -188,6 +226,16 @@ local function on_changed_slot(new_slot, new_obj, prev_slot, prev_obj)
 		return
 	end
 
+	-- an animated (AML) load owns the hands for its whole run: the driver keeps the
+	-- weapon holstered for its HUD anim, so a slot draw here is never a deliberate
+	-- player draw
+	if driver_animating() then
+		if not inv_open and db.actor and db.actor:active_slot() ~= 0 then
+			db.actor:activate_slot(0)
+		end
+		return
+	end
+
 	-- housekeeping re-equip: ignore and keep the load running
 	local is_holster_redraw = holstered and new_slot == holstered
 	if fdda_busy or is_holster_redraw then
@@ -199,7 +247,18 @@ local function on_changed_slot(new_slot, new_obj, prev_slot, prev_obj)
 		return
 	end
 
+	-- non-animated (no AML driver) load
+	local deliberate = (time_global() - last_wpn_key_tg) <= WPN_KEY_WINDOW
+	if not deliberate then
+		local should_be_empty = holstered or (magazines.did_start_hands_empty and magazines.did_start_hands_empty())
+		if should_be_empty and not inv_open and db.actor and db.actor:active_slot() ~= 0 then
+			db.actor:activate_slot(0)
+		end
+		return
+	end
+
 	-- a deliberate draw of a different weapon: take hands off the mag
+	diag_arm("slot_change:draw_slot=" .. tostring(new_slot))
 	cancel_load_holstered()
 end
 
@@ -215,17 +274,20 @@ local function on_mode_changed(new_mode)
 	-- animation (body-search open/close, etc.), so free the hands on either edge.
 	-- A load through your own inventory (mode 1 to 0) is untouched: field load stays
 	if new_mode > 1 or prev > 1 then
+		diag_arm("menu_mode:" .. tostring(prev) .. "_to_" .. tostring(new_mode))
 		cancel_and_free_hands()
 	end
 end
 
 -- butchering or otherwise using a mutant corpse (FDDA butcher animation)
 local function on_monster_use(monster, who)
+	diag_arm("monster_use:butcher")
 	cancel_and_free_hands()
 end
 
 -- using any item (food, drink, meds, a tool, ...): fires before the FDDA animation
 local function on_item_before_use(obj, flags)
+	diag_arm("item_before_use:" .. (obj and obj:section() or "?"))
 	cancel_and_free_hands()
 end
 
@@ -240,18 +302,21 @@ local function on_item_take_drop(obj)
 		return
 	end
 	if lam2_running_other() then
+		diag_arm("item_take_drop:lam2:" .. current_lam2_tag())
 		cancel_and_free_hands()
 	end
 end
 
 -- talking to or trading with an NPC: leave the weapon holstered on cancel
 local function on_npc_use(npc, who)
+	diag_arm("npc_use:talk_or_trade")
 	cancel_load_holstered()
 end
 
 -- opening a craft/repair/upgrade workshop (registers as "UIWorkshop")
 local function on_gui_show(name, path)
 	if name and string.find(name, "Workshop") then
+		diag_arm("gui_show:" .. tostring(name))
 		cancel_and_free_hands()
 	end
 end
@@ -267,6 +332,10 @@ local cancel_binds = {
 --
 -- returns true when it consumed the reload key so the caller stops handling it
 function handle_load_cancel_key(key, bind, flags)
+	if bind and wpn_draw_binds[bind] then
+		last_wpn_key_tg = time_global()
+	end
+
 	if not (magazines and magazines.action_in_progress and magazines.action_in_progress()) then
 		return
 	end
@@ -278,12 +347,14 @@ function handle_load_cancel_key(key, bind, flags)
 
 	-- a manual headlamp toggle or mask wipe plays a hand animation, so either stops a load in both modes
 	if bind == key_bindings.kTORCH or bind == key_bindings.kCAM_ZOOM_IN then
+		diag_arm("key:torch_or_zoom")
 		cancel_load_holstered()
 		return
 	end
 
 	-- jumping stops a careful round-by-round load (we're not in a fkn circus)
 	if bind == key_bindings.kJUMP and cfg("field_jump_cancel") ~= false then
+		diag_arm("key:jump")
 		magazines.do_interrupt_magload()
 		return
 	end
@@ -293,6 +364,7 @@ function handle_load_cancel_key(key, bind, flags)
 		-- field loading keeps a load alive after the inventory closes, so the
 		-- inventory-toggle and quit keys must NOT cancel it
 		if not inv and bind == key_bindings.kWPN_RELOAD then
+			diag_arm("key:wpn_reload")
 			magazines.do_interrupt_magload()
 			if flags then
 				flags.ret_value = false
@@ -301,6 +373,7 @@ function handle_load_cancel_key(key, bind, flags)
 		end
 	elseif cancel_binds[bind] or key == DIK_keys.DIK_LMENU then
 		-- field loading off: closing the inventory or quitting cancels (classic)
+		diag_arm("key:classic_close")
 		magazines.do_interrupt_magload()
 	end
 end

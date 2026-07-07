@@ -65,6 +65,7 @@ local defaults = {
     field_hud_x_offset		= 0,
     field_hud_y_offset		= 0,
     field_jump_cancel		= true,
+    field_diag_enable		= false,
 
     mark_color_fmj			= "lime",
     mark_color_ap			= "aqua",
@@ -142,6 +143,7 @@ local def_map = {
     field_hud_x_offset		= "field",
     field_hud_y_offset		= "field",
     field_jump_cancel		= "field",
+    field_diag_enable		= "field",
 
     mark_color_fmj			= "hotkeys",
     mark_color_ap			= "hotkeys",
@@ -272,6 +274,7 @@ function on_mcm_load()
             {id = "field_hud_x_offset", type = "track", val = 2, min=-500,max=500,step=2, def = 0},
             {id = "field_hud_y_offset", type = "track", val = 2, min=-400,max=400,step=2, def = 0},
             {id = "field_jump_cancel", type = "check", val = 1, def=true},
+            {id = "field_diag_enable", type = "check", val = 1, def=false},
         }},
         {id = "hotkeys",sh=true,gr={
             {id= "autoloadtitle",type= "slide",text="ui_mcm_magazines_autoloadtitle",link= "ui_options_slider_player",size= {512,50},spacing= 20},

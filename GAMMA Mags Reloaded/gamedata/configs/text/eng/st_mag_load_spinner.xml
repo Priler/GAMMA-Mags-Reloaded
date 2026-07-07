@@ -281,4 +281,12 @@
     <string id="ui_mcm_magazines_field_field_jump_cancel_desc">
         <text>Stop an in-progress field load when you jump. A jump jostles a careful round-by-round load, so by default it cancels it.</text>
     </string>
+
+    <!-- Field load cancel diagnostics -->
+    <string id="ui_mcm_magazines_field_field_diag_enable">
+        <text>Field Mag Load Debug</text>
+    </string>
+    <string id="ui_mcm_magazines_field_field_diag_enable_desc">
+        <text>Troubleshooting only. Leave OFF for normal play. When a field mag load cancels on its own, turn this ON, reproduce it, then send your game log: every start and cancel is written with its cause and a call stack so the culprit can be identified.</text>
+    </string>
 </string_table>

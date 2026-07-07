@@ -54,6 +54,7 @@ end
 
 -- actor action state
 local action_state = 0
+
 -- states (idle, mag to weapon reload in progress, ammo to mag load in progress)
 ACTION_NONE = 0
 ACTION_RELOAD = 1
@@ -69,6 +70,7 @@ local round_silent = false
 
 -- due to changing how mag loading works (1 big event vs. several events) we need this here to persist which box we are taking ammo from
 local ext_ammo_box = nil
+
 -- cached section of ext_ammo_box, kept in step at every assignment
 local ext_ammo_section = nil
 
@@ -77,8 +79,12 @@ local force_reload = false
 
 -- holster-on-load: weapon slot to re-draw once the load ends and the inventory is closed
 local holster_saved_slot = nil
+
 -- a drawn device (detector) lives outside the weapon slots, so it is hidden and restored separately
 local holster_saved_detector = false
+
+-- true when a mag load began with the hands already empty (slot 0)
+local load_started_empty = false
 
 -- is the actor inventory currently on screen
 local function inventory_shown()
@@ -103,6 +109,13 @@ end
 
 function action_in_progress()
 	return action_state ~= ACTION_NONE
+end
+
+-- diagnostics: label a known/expected reason for an upcoming do_interrupt
+local function diag_reason(r)
+	if mag_field_diag and mag_field_diag.arm then
+		mag_field_diag.arm(r)
+	end
 end
 
 function action_start_reload()
@@ -139,7 +152,17 @@ end
 
 function action_start_magload()
 	action_state = ACTION_LOAD_MAG
+	-- capture the pre-load hand state before we (maybe) holster for the load
+	load_started_empty = (db.actor and db.actor:active_slot() == 0) or false
+	if mag_field_diag and mag_field_diag.note_start then
+		mag_field_diag.note_start()
+	end
 	do_holster_for_load(false)
+end
+
+-- true if the current (or last) mag load began with empty hands
+function did_start_hands_empty()
+	return load_started_empty
 end
 
 function do_interrupt_reload()
@@ -180,6 +203,10 @@ function is_loading_mag()
 end
 
 function do_interrupt()
+	-- diagnostics: report only when THIS interrupt is killing a live mag load
+	if action_state == ACTION_LOAD_MAG and mag_field_diag and mag_field_diag.note_interrupt then
+		mag_field_diag.note_interrupt()
+	end
 	action_state = ACTION_NONE
 	ext_ammo_section = nil
 	if mag_reload_speed then
@@ -358,6 +385,7 @@ function on_item_drag_dropped(item, weapon, from_slot, to_slot)
 	)
 	--Only do one thing at a time
 	if action_in_progress() then
+		diag_reason("internal:drag_drop_busy")
 		do_interrupt()
 		return
 	end
@@ -961,6 +989,7 @@ function load_magazine(magazine, capacity, delay)
 	print_dbg("Try load magazine, Action state: %s", action_state)
 	if action_state ~= ACTION_LOAD_MAG or ext_ammo_box == nil then
 		print_dbg("ending load prematurely. is ammo box nil? %s", ext_ammo_box == nil)
+		diag_reason("complete:load_end (box_nil=" .. tostring(ext_ammo_box == nil) .. ")")
 		do_interrupt()
 		inventory_refresh()
 		last_time = 0
@@ -974,6 +1003,7 @@ function load_magazine(magazine, capacity, delay)
 		inventory_refresh()
 		last_time = 0
 		ext_ammo_box = nil
+		diag_reason("complete:mag_full")
 		do_interrupt()
 		return true
 	end
@@ -983,6 +1013,7 @@ function load_magazine(magazine, capacity, delay)
 	local ext_ammo_obj = ext_ammo_box
 	if not ext_ammo_obj then
 		print_dbg("ext_ammo_box object is nil, ending load")
+		diag_reason("complete:ammo_box_gone")
 		do_interrupt()
 		inventory_refresh()
 		last_time = 0
@@ -996,6 +1027,7 @@ function load_magazine(magazine, capacity, delay)
 	end)
 	if not probe_ok then
 		ext_ammo_box = nil
+		diag_reason("complete:ammo_box_stale")
 		do_interrupt()
 		inventory_refresh()
 		last_time = 0
@@ -1039,6 +1071,7 @@ function unload_magazine(magazine, delay, boxes)
 	local mag_parent = db.actor --magazine:parent() and magazine:parent() or db.actor
 	if not mag_data or #mag_data.loaded == 0 or action_state ~= ACTION_LOAD_MAG then
 		print_dbg("ending unload prematurely, state=%s", action_state)
+		diag_reason("complete:unload_end")
 		do_interrupt()
 		inventory_refresh()
 		last_time = 0
@@ -1065,6 +1098,7 @@ function unload_magazine(magazine, delay, boxes)
 		print_dbg("Mag empty, returning")
 		inventory_refresh()
 		last_time = 0
+		diag_reason("complete:unload_mag_empty")
 		do_interrupt()
 		return true
 	end
@@ -1423,6 +1457,7 @@ end
 
 function on_game_load()
 	-- reset action state
+	diag_reason("internal:game_load_reset")
 	do_interrupt()
 	-- purge any errant time events
 	for k, v in pairs(time_event_cache) do
