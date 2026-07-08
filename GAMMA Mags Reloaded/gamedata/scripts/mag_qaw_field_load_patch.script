@@ -40,6 +40,27 @@ local function mag_is_full(obj)
 	return loaded >= cap
 end
 
+-- true when nothing weapon-like is drawn (bare hands, knife, fkn artefact container lmao)
+local function no_active_weapon()
+	local wpn = db.actor:active_item()
+	return (not wpn) or (not IsWeapon(wpn)) or IsItem("fake_ammo_wpn", wpn:section())
+end
+
+-- every magazine carried in the loadout pouch
+local function all_carried_mags()
+	local t = {}
+	local carried = {}
+	magazine_binder.get_carried_mags(carried)
+	for id, data in pairs(carried) do
+		local obj = level.object_by_id(id)
+		local p = obj and obj:parent()
+		if p and p:id() == AC_ID then
+			t[#t + 1] = { obj = obj, sec = data.section }
+		end
+	end
+	return t
+end
+
 local function install(qaw, manager)
 	local classes = manager.classes
 	local mag_cls = classes and classes.QMagazineWheelOption
@@ -51,22 +72,54 @@ local function install(qaw, manager)
 		return false
 	end
 
-	-- RIGHT-click a magazine in the ammo tab
-	local orig_mag_onrightclick = mag_cls.OnRightClick
-	mag_cls.OnRightClick = function(self)
+	-- arm a listed mag for a field load and jump to its ammo picker
+	local function arm_mag_for_load(self)
 		local ammo_tab = manager.tab_by_handler and manager.tab_by_handler.ammo
 		local obj = self:GetObject()
 		if not (ammo_tab and obj) then
-			if orig_mag_onrightclick then
-				return orig_mag_onrightclick(self)
+			return false
+		end
+		if not (mag_is_full(obj) or not has_carried_ammo(obj)) then
+			manager.mag_to_reload = obj
+			manager:SetCurrentTab(ammo_tab, true)
+		end
+		return true
+	end
+
+	-- RIGHT-click a magazine: always arm it for a field load
+	local orig_mag_onrightclick = mag_cls.OnRightClick
+	mag_cls.OnRightClick = function(self)
+		if arm_mag_for_load(self) then
+			return
+		end
+		if orig_mag_onrightclick then
+			return orig_mag_onrightclick(self)
+		end
+	end
+
+	-- LEFT-click a magazine: with no weapon out there is nothing to reload
+	local orig_mag_onclick = mag_cls.OnClick
+	mag_cls.OnClick = function(self)
+		if no_active_weapon() then
+			arm_mag_for_load(self)
+			return
+		end
+		if orig_mag_onclick then
+			return orig_mag_onclick(self)
+		end
+	end
+
+	-- with no weapon out the default weapon-compat coloring is meaningless
+	local orig_mag_update = mag_cls.Update
+	mag_cls.Update = function(self)
+		if not no_active_weapon() then
+			if orig_mag_update then
+				return orig_mag_update(self)
 			end
 			return
 		end
-		if mag_is_full(obj) or not has_carried_ammo(obj) then
-			return
-		end
-		manager.mag_to_reload = obj
-		manager:SetCurrentTab(ammo_tab, true)
+		local obj = self:GetObject()
+		self:GetCellItem():Colorize(obj and "def" or "hide")
 	end
 
 	-- ammo tab source: while a mag is armed, list the ammo it accepts and the
@@ -75,6 +128,10 @@ local function install(qaw, manager)
 	ammo_handler.GetItemTable = function(self)
 		local mag = manager.mag_to_reload
 		if not mag then
+			-- with no weapon out the stock ammo tab is empty
+			if no_active_weapon() then
+				return all_carried_mags()
+			end
 			return orig_get_item_table(self)
 		end
 		local t = {}
