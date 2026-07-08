@@ -86,6 +86,14 @@ local holster_saved_detector = false
 -- true when a mag load began with the hands already empty (slot 0)
 local load_started_empty = false
 
+-- vetting for do_interrupt_magload
+local magload_cancel_vetted = false
+
+-- mark the NEXT do_interrupt_magload as one of our own vetted cancels
+function vet_next_magload_cancel()
+	magload_cancel_vetted = true
+end
+
 -- is the actor inventory currently on screen
 local function inventory_shown()
 	local m = GetActorMenu()
@@ -172,12 +180,23 @@ function do_interrupt_reload()
 end
 
 function do_interrupt_magload()
-	if action_state == ACTION_LOAD_MAG then
-		-- route through do_interrupt so a registered animated-loading driver also
-		-- gets its interrupt()
-		-- (cam effector + hide anim)
-		do_interrupt()
+	local vetted = magload_cancel_vetted
+	magload_cancel_vetted = false
+	if action_state ~= ACTION_LOAD_MAG then
+		return
 	end
+
+	if not vetted and mag_field_load and mag_field_load.external_cancel_blocked and mag_field_load.external_cancel_blocked() then
+		if mag_field_diag and mag_field_diag.note_blocked then
+			mag_field_diag.note_blocked()
+		end
+		return
+	end
+
+	-- route through do_interrupt so a registered animated-loading driver also
+	-- gets its interrupt()
+	-- (cam effector + hide anim)
+	do_interrupt()
 end
 
 -- forget the slot saved at load start so the weapon is not auto-drawn afterwards

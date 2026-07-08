@@ -101,10 +101,19 @@ local function current_lam2_tag()
 	return (act and act.tag) or "none"
 end
 
-local function cancel_load()
-	if magazines and magazines.do_interrupt_magload then
-		magazines.do_interrupt_magload()
+-- our own cancels: vet the call so the host does not filter it as a foreign one
+local function vetted_interrupt_magload()
+	if not (magazines and magazines.do_interrupt_magload) then
+		return
 	end
+	if magazines.vet_next_magload_cancel then
+		magazines.vet_next_magload_cancel()
+	end
+	magazines.do_interrupt_magload()
+end
+
+local function cancel_load()
+	vetted_interrupt_magload()
 end
 
 -- cancel but leave the weapon holstered (the player put it away on purpose)
@@ -115,7 +124,15 @@ local function cancel_load_holstered()
 	if magazines.forget_holster then
 		magazines.forget_holster()
 	end
-	magazines.do_interrupt_magload()
+	vetted_interrupt_magload()
+end
+
+function external_cancel_blocked()
+	-- field loading off: classic behavior, let external cancels through
+	if cfg("field_load_enable") == false then
+		return false
+	end
+	return true
 end
 
 -- Cancel a running load for actions that make FDDA animate the hands (item
@@ -355,7 +372,7 @@ function handle_load_cancel_key(key, bind, flags)
 	-- jumping stops a careful round-by-round load (we're not in a fkn circus)
 	if bind == key_bindings.kJUMP and cfg("field_jump_cancel") ~= false then
 		diag_arm("key:jump")
-		magazines.do_interrupt_magload()
+		vetted_interrupt_magload()
 		return
 	end
 	local m = GetActorMenu()
@@ -365,7 +382,7 @@ function handle_load_cancel_key(key, bind, flags)
 		-- inventory-toggle and quit keys must NOT cancel it
 		if not inv and bind == key_bindings.kWPN_RELOAD then
 			diag_arm("key:wpn_reload")
-			magazines.do_interrupt_magload()
+			vetted_interrupt_magload()
 			if flags then
 				flags.ret_value = false
 			end
@@ -374,7 +391,7 @@ function handle_load_cancel_key(key, bind, flags)
 	elseif cancel_binds[bind] or key == DIK_keys.DIK_LMENU then
 		-- field loading off: closing the inventory or quitting cancels (classic)
 		diag_arm("key:classic_close")
-		magazines.do_interrupt_magload()
+		vetted_interrupt_magload()
 	end
 end
 

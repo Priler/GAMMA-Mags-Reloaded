@@ -127,6 +127,15 @@ function note_interrupt()
 	log_trace()
 end
 
+function note_blocked()
+	if not is_enabled() then
+		return
+	end
+	printf("%s ..... EXTERNAL CANCEL BLOCKED .....", PREFIX)
+	printf("%s state: %s", PREFIX, snapshot())
+	log_trace()
+end
+
 -- called from magazines.action_start_magload so the log pairs a start with its cancel
 function note_start()
 	armed_reason = nil

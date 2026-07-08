@@ -959,6 +959,10 @@ function utils_ui.UICellContainer:OnKeyboard(dik, keyboard_action)
 		local id = ci and ci.ID and tonumber(ci.ID)
 		if id and active[id] then
 			if magazines and magazines.do_interrupt_magload then
+				-- our own cell-click cancel: vet it so the host does not filter it
+				if magazines.vet_next_magload_cancel then
+					magazines.vet_next_magload_cancel()
+				end
 				magazines.do_interrupt_magload()
 			end
 			return true
