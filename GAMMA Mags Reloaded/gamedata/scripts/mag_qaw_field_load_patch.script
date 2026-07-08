@@ -40,12 +40,6 @@ local function mag_is_full(obj)
 	return loaded >= cap
 end
 
--- true when nothing weapon-like is drawn (bare hands, knife, fkn artefact container lmao)
-local function no_active_weapon()
-	local wpn = db.actor:active_item()
-	return (not wpn) or (not IsWeapon(wpn)) or IsItem("fake_ammo_wpn", wpn:section())
-end
-
 -- every magazine carried in the loadout pouch
 local function all_carried_mags()
 	local t = {}
@@ -97,22 +91,28 @@ local function install(qaw, manager)
 		end
 	end
 
-	-- LEFT-click a magazine: with no weapon out there is nothing to reload
+	-- LEFT-click a magazine: in the ammo-wheel path (or when the mag fits the drawn
+	-- weapon) keep the stock behaviour of loading it into the gun
 	local orig_mag_onclick = mag_cls.OnClick
 	mag_cls.OnClick = function(self)
-		if no_active_weapon() then
-			arm_mag_for_load(self)
-			return
+		if not manager.opened_via_ammo_wheel then
+			local obj = self:GetObject()
+			-- CanLoadInActiveWeapon guarded so a QAW build lacking it just field-loads on left-click instead of erroring
+			local fits_weapon = obj and mag_cls.CanLoadInActiveWeapon and self:CanLoadInActiveWeapon(obj)
+			if not fits_weapon then
+				arm_mag_for_load(self)
+				return
+			end
 		end
 		if orig_mag_onclick then
 			return orig_mag_onclick(self)
 		end
 	end
 
-	-- with no weapon out the default weapon-compat coloring is meaningless
+	-- the normal open lists every mag
 	local orig_mag_update = mag_cls.Update
 	mag_cls.Update = function(self)
-		if not no_active_weapon() then
+		if manager.opened_via_ammo_wheel then
 			if orig_mag_update then
 				return orig_mag_update(self)
 			end
@@ -128,11 +128,11 @@ local function install(qaw, manager)
 	ammo_handler.GetItemTable = function(self)
 		local mag = manager.mag_to_reload
 		if not mag then
-			-- with no weapon out the stock ammo tab is empty
-			if no_active_weapon() then
-				return all_carried_mags()
+			-- ammo-wheel replacement path keeps the stock weapon-compatible list
+			if manager.opened_via_ammo_wheel then
+				return orig_get_item_table(self)
 			end
-			return orig_get_item_table(self)
+			return all_carried_mags()
 		end
 		local t = {}
 		for sec in pairs(caliber_set_for(mag)) do
@@ -214,12 +214,25 @@ local function install(qaw, manager)
 		return orig_set_current_tab(self, tab, temp)
 	end
 
-	-- always start a fresh open clean
+	-- record how the wheel was opened
 	local orig_open = qaw.open_radial_menu
 	if orig_open then
 		qaw.open_radial_menu = function(...)
 			manager.mag_to_reload = nil
+			manager.opened_via_ammo_wheel = manager.ammo_wheel_pending or false
+			manager.ammo_wheel_pending = false
 			return orig_open(...)
+		end
+	end
+
+	-- mark the ammo-wheel replacement path so its ammo tab keeps the stock weapon-compatible mag list
+	local orig_start_ammo_wheel = qaw.start_ammo_wheel_override
+	if orig_start_ammo_wheel then
+		qaw.start_ammo_wheel_override = function(...)
+			manager.ammo_wheel_pending = true
+			local r = orig_start_ammo_wheel(...)
+			manager.ammo_wheel_pending = false
+			return r
 		end
 	end
 
